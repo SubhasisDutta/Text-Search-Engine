@@ -1,0 +1,1 @@
+This module will be a MEAN Application that will make REST calls to different endpoints and get the query results.

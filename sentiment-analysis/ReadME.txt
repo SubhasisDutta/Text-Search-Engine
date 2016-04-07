@@ -1,0 +1,1 @@
+This module will find the sentiment score for different sentence in a text in a scale of (-5 to 5) and serve it through a python tornado server.

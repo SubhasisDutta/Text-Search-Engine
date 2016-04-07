@@ -1,0 +1,1 @@
+This module will scan the index present in mongoDB built by the crawler and expose a async Jersy REST API to make different queries. This should also support Command line API.

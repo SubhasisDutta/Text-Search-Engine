@@ -1,0 +1,1 @@
+This will be the domain Specific Crawler. That will take in metadata about pre-defined domains in a config file and do crawling and indexing and store the results in mongoDB to be used by other midules. Need to explore on which playform to use for this.
