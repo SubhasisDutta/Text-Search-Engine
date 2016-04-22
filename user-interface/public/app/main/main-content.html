@@ -1,0 +1,115 @@
+<div flex layout="row">
+    <div flex="5" >
+        &nbsp;
+    </div>
+    <div flex>
+        <md-content layout-padding>
+            <section layout="row" layout-sm="column" layout-align="center center" layout-wrap>
+                <form name="searchForm" ng-submit="getSearchResults(searchQuery)">
+                   <md-input-container class="md-block" id="searchBox" >
+                        <label>Search Query ... </label>
+                        <input md-maxlength="250" required md-no-asterisk name="description" ng-model="searchQuery">
+                        <div ng-messages="projectForm.description.$error">
+                            <div ng-message="required">This is required.</div>
+                            <div ng-message="md-maxlength">The Search Query has to be less than 250 characters long.</div>
+                        </div>
+                   </md-input-container>
+                   <md-button class="md-raised md-primary" ng-click="getSearchResults(searchQuery)">Search</md-button>
+                </form>
+            </section>
+        </md-content>
+    </div>
+</div>
+<div flex>
+    <!-- Dynamic Tabbed result display. To be shown only when  -->
+    <p style="width: 100%; text-align: center; font-size: 1.6em; " ng-show="isBeginingScreen()">
+        Enter a query above ...
+
+        <md-list >
+            This Search Engine is developed By:
+            <md-list-item>
+                Stephen Balhoff
+            </md-list-item>
+            <md-list-item>
+                Ramprasadh Srivathsa
+            </md-list-item>
+            <md-list-item>
+                Subhasis Dutta
+            </md-list-item>
+            <md-list-item>
+                Wyatt Lee Chastain
+            </md-list-item>
+            <md-list-item>
+                Matthew Bachelder
+            </md-list-item>
+        </md-list>
+    </p>
+    <p style="width: 100%; text-align: center; font-size: 1.6em; " ng-show="isQueryProcessing()">
+        Please Wait ... Result are on its way ....
+    </p>
+    <md-content flex id="contentTabs" ng-show="isResultAvailable()">
+        <md-tabs md-dynamic-height=""
+                 md-stretch-tabs="always"
+                 md-selected="tabIndex">
+            <md-tab label="Relevance Models" style="font-size: 1.3em;font-weight: bold;">
+                <h1>Results from Relevance Models .... </h1>
+            </md-tab>
+            <md-tab label="Clustering">
+                <h1>Results from Relevance Models .... </h1>
+            </md-tab>
+            <md-tab label="Query Expansion">
+                <h1>Results from Relevance Models .... </h1>
+            </md-tab>
+            <md-tab label="GOOGLE">
+                <p>Top 10 from about {{googleSearchResults.searchInformation.formattedTotalResults}} results ( {{googleSearchResults.searchInformation.formattedSearchTime}} Seconds)</p>
+                <md-list>
+                    <md-list-item ng-repeat="item in googleSearchResults.items" class="noright">
+                        <md-card md-theme="{{ showDarkTheme ? 'dark-blue' : 'default' }}" md-theme-watch style="width: 100%;">
+                            <md-card-title >
+                                <md-card-title-media>
+                                    <div class="md-media-md card-media">
+                                        <img alt="{{item.title}}" ng-src="{{item.pagemap.cse_thumbnail[0].src}}" class="md-avatar" />
+                                    </div>
+                                </md-card-title-media>
+                                <md-card-title-text>
+                                    <span class="md-headline"><a href="{{item.link}}" target="_blank">{{item.title}}</a></span>
+                                    <span class="md-subhead">{{item.snippet}}</span>
+                                </md-card-title-text>
+                            </md-card-title>
+                            <md-card-actions layout="row" layout-align="end center">
+                                <a href="{{item.link}}" target="_blank">Go To Page</a>
+                            </md-card-actions>
+                        </md-card>
+                    </md-list-item>
+                </md-list>
+            </md-tab>
+            <md-tab label="BING">
+                <p>Top 50 results</p>
+                <md-list>
+                    <md-list-item ng-repeat="item in bingSearchResults.d.results" class="noright">
+                        <md-card md-theme="{{ showDarkTheme ? 'dark-blue' : 'default' }}" md-theme-watch style="width: 100%;">
+                            <md-card-title >
+                                <md-card-title-media>
+                                    <div class="md-media-md card-media">
+                                        <img alt="{{item.Title}}" ng-src="{{item.pagemap.cse_thumbnail[0].src}}" class="md-avatar"  />
+                                    </div>
+                                </md-card-title-media>
+                                <md-card-title-text>
+                                    <span class="md-headline"><a href="{{item.Url}}" target="_blank">{{item.Title}}</a></span>
+                                    <span class="md-subhead">{{item.Description}}</span>
+                                </md-card-title-text>
+                            </md-card-title>
+                            <md-card-actions layout="row" layout-align="end center">
+                                <a href="{{item.Url}}" target="_blank">Go To Page</a>
+                            </md-card-actions>
+                        </md-card>
+                    </md-list-item>
+                </md-list>
+            </md-tab>
+        </md-tabs>
+    </md-content>
+</div>
+
+
+
+
