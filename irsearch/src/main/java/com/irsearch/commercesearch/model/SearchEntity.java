@@ -5,6 +5,7 @@ public class SearchEntity {
 	private String description;
 	private String url;
 	private String imageUrl;
+	
 	public String getTitle() {
 		return title;
 	}

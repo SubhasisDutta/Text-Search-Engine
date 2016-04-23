@@ -6,6 +6,7 @@ public class SearchResults {
 	private int resultCount;
 	private List<SearchEntity> results;
 	private int executionTime;
+	
 	public int getResultCount() {
 		return resultCount;
 	}
