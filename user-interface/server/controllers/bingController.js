@@ -27,6 +27,7 @@ exports.getBingSearchResults = function(req, res) {
             return res.send(500, err.message);
         if (response.statusCode !== 200)
             return res.send(500, response.body);
+        console.log(response.body);
         //var results = JSON.parse(response.body);
         res.send(response.body);
     });

@@ -52,13 +52,76 @@
                  md-stretch-tabs="always"
                  md-selected="tabIndex">
             <md-tab label="Relevance Models" style="font-size: 1.3em;font-weight: bold;">
-                <h1>Results from Relevance Models .... </h1>
+                <h1>TODO:Results from Relevance Models .... </h1>
+                <p>Top 50 results</p>
+                <md-list>
+                    <md-list-item ng-repeat="item in bingSearchResults.d.results" class="noright">
+                        <md-card md-theme="{{ showDarkTheme ? 'dark-blue' : 'default' }}" md-theme-watch style="width: 100%;">
+                            <md-card-title >
+                                <md-card-title-media>
+                                    <div class="md-media-md card-media">
+                                        <img alt="{{item.Title}}" ng-src="{{item.pagemap.cse_thumbnail[0].src}}" class="md-avatar"  />
+                                    </div>
+                                </md-card-title-media>
+                                <md-card-title-text>
+                                    <span class="md-headline"><a href="{{item.Url}}" target="_blank">{{item.Title}}</a></span>
+                                    <span class="md-subhead">{{item.Description}}</span>
+                                </md-card-title-text>
+                            </md-card-title>
+                            <md-card-actions layout="row" layout-align="end center">
+                                <a href="{{item.Url}}" target="_blank">Go To Page</a>
+                            </md-card-actions>
+                        </md-card>
+                    </md-list-item>
+                </md-list>
             </md-tab>
             <md-tab label="Clustering">
-                <h1>Results from Relevance Models .... </h1>
+                <h1>TODO:Results from Relevance Models .... </h1>
+                <p>Top 50 results</p>
+                <md-list>
+                    <md-list-item ng-repeat="item in bingSearchResults.d.results" class="noright">
+                        <md-card md-theme="{{ showDarkTheme ? 'dark-blue' : 'default' }}" md-theme-watch style="width: 100%;">
+                            <md-card-title >
+                                <md-card-title-media>
+                                    <div class="md-media-md card-media">
+                                        <img alt="{{item.Title}}" ng-src="{{item.pagemap.cse_thumbnail[0].src}}" class="md-avatar"  />
+                                    </div>
+                                </md-card-title-media>
+                                <md-card-title-text>
+                                    <span class="md-headline"><a href="{{item.Url}}" target="_blank">{{item.Title}}</a></span>
+                                    <span class="md-subhead">{{item.Description}}</span>
+                                </md-card-title-text>
+                            </md-card-title>
+                            <md-card-actions layout="row" layout-align="end center">
+                                <a href="{{item.Url}}" target="_blank">Go To Page</a>
+                            </md-card-actions>
+                        </md-card>
+                    </md-list-item>
+                </md-list>
             </md-tab>
             <md-tab label="Query Expansion">
                 <h1>Results from Relevance Models .... </h1>
+                <p>TODO:Top 50 results</p>
+                <md-list>
+                    <md-list-item ng-repeat="item in bingSearchResults.d.results" class="noright">
+                        <md-card md-theme="{{ showDarkTheme ? 'dark-blue' : 'default' }}" md-theme-watch style="width: 100%;">
+                            <md-card-title >
+                                <md-card-title-media>
+                                    <div class="md-media-md card-media">
+                                        <img alt="{{item.Title}}" ng-src="{{item.pagemap.cse_thumbnail[0].src}}" class="md-avatar"  />
+                                    </div>
+                                </md-card-title-media>
+                                <md-card-title-text>
+                                    <span class="md-headline"><a href="{{item.Url}}" target="_blank">{{item.Title}}</a></span>
+                                    <span class="md-subhead">{{item.Description}}</span>
+                                </md-card-title-text>
+                            </md-card-title>
+                            <md-card-actions layout="row" layout-align="end center">
+                                <a href="{{item.Url}}" target="_blank">Go To Page</a>
+                            </md-card-actions>
+                        </md-card>
+                    </md-list-item>
+                </md-list>
             </md-tab>
             <md-tab label="GOOGLE">
                 <p>Top 10 from about {{googleSearchResults.searchInformation.formattedTotalResults}} results ( {{googleSearchResults.searchInformation.formattedSearchTime}} Seconds)</p>

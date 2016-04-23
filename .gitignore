@@ -1,3 +1,10 @@
 user-interface/node_modules/
 user-interface/public/vendor/
 user-interface/.idea/
+.metadata/
+Servers/
+RemoteSystemsTempFiles/
+irsearch/.settings/
+crawler/commercr-crawler/crawled_data/
+crawler/commercr-crawler/c_db
+crawler/commercr-crawler/current_db
