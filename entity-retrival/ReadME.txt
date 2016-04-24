@@ -1,1 +1,0 @@
-This buils upon the entity retrival of serendio with features to work with StanfordNLP and OpenNlp. Will be build on Java and expose a async Server.

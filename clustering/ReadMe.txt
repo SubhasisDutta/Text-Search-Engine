@@ -1,1 +1,0 @@
-This module will build cluster for a query based on the index data available in the database.

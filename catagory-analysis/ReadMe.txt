@@ -1,1 +1,0 @@
-This module will perform analysis on text and provide the catagory the text can belong to. This will be done baed on the Python code available from serendio. Will be exposed as a REST API.

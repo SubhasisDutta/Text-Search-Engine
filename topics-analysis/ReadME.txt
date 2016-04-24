@@ -1,1 +1,0 @@
-This module will extract keywords and topics from text using the Serendio Python module and launch the results in a Python Tordado Server.

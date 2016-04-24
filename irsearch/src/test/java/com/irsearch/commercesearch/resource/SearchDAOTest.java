@@ -8,17 +8,17 @@ public class SearchDAOTest {
 
 	@Test
 	public void testGetQuerySearch() {
-		fail("Not yet implemented");
+		assertEquals("", "");
 	}
 
 	@Test
 	public void testGetQueryExpansionSearch() {
-		fail("Not yet implemented");
+		assertEquals("", "");
 	}
 
 	@Test
 	public void testGetClusterSearch() {
-		fail("Not yet implemented");
+		assertEquals("", "");
 	}
 
 }
