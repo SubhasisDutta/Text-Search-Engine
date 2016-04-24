@@ -7,6 +7,12 @@ public class ClusterEntity {
 	private String title;
 	private int size;
 
+	public ClusterEntity(){
+		this.clusterNo = 0;
+		this.title = "";
+		this.size = 0;
+	}
+	
 	public ClusterEntity(int clusterNo, String title, int size) {
 		this.clusterNo = clusterNo;
 		this.title = title;

@@ -5,7 +5,7 @@ import java.util.List;
 public class SearchClusterResults {
 	private List<SearchEntity> results;
 	private List<ClusterEntity> clusters;
-
+	private String initialQuery;
 	private int resultCount;
 	private long executionTime;
 
@@ -41,6 +41,14 @@ public class SearchClusterResults {
 
 	public void setClusters(List<ClusterEntity> clusters) {
 		this.clusters = clusters;
+	}
+
+	public String getInitialQuery() {
+		return initialQuery;
+	}
+
+	public void setInitialQuery(String initialQuery) {
+		this.initialQuery = initialQuery;
 	}
 	
 	

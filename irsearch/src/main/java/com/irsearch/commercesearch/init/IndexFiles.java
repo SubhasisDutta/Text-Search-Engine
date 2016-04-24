@@ -86,7 +86,8 @@ public class IndexFiles {
 		  /** Indexes a single document */
 		  public static void indexDoc(IndexWriter writer, Path file, long lastModified){
 
-			  try (InputStream stream = Files.newInputStream(file)) {
+			  try{
+				  InputStream stream = Files.newInputStream(file);  
 		      // make a new, empty document
 		      Document doc = new Document();
 		      

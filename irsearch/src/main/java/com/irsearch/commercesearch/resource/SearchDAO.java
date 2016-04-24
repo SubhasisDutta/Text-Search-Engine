@@ -23,7 +23,7 @@ public class SearchDAO implements iSearchDAO {
 		long startTime = Calendar.getInstance().getTimeInMillis();
 		SearchResults results = new SearchResults();
 		Searcher sc = new Searcher();
-		List<SearchEntity> entity = new ArrayList<>();
+		List<SearchEntity> entity = new ArrayList<SearchEntity>();
 		for(int i=0;i<50;i++){
 			SearchEntity e = new SearchEntity();
 			try {
