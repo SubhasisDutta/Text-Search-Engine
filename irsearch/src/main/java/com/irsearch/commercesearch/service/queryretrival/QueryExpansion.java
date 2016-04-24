@@ -1,11 +1,8 @@
 package com.irsearch.commercesearch.service.queryretrival;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import org.lemurproject.kstem.KrovetzStemmer;
@@ -149,8 +146,6 @@ public class QueryExpansion {
                         
                 }
 	    	documentVectors.add(d);
-                
-
 	    }
         
         
@@ -170,8 +165,6 @@ public class QueryExpansion {
             }
            
             relevantDocVectorSum[j]+= total* beta*(1/(double)releventCollectionSize);
-            
-            
         }
         
         double [] queryVector = new double[localStemmedVocab.size()];
@@ -205,8 +198,9 @@ public class QueryExpansion {
         }
         
         
-         int[] topThreeRows = new int[3];
+        int[] topThreeRows = new int[3];
         double[] topThree = new double[3];
+        
         for(int i=0; i < modifiedQueryVector.length; i++){
             boolean partOfOriginalQuery = false;
             for(String queryTerm: originalQuery.keySet()){
@@ -214,6 +208,7 @@ public class QueryExpansion {
                     partOfOriginalQuery=true;
                 }
             }
+            
             if(!partOfOriginalQuery){
                 double result = modifiedQueryVector[i];
                 int row = i;
@@ -272,7 +267,7 @@ public class QueryExpansion {
         
     	double n = 0;
     	for(String queryTerm : originalQuery.keySet()){
-            
+            term = stemmer.stem(term);
     		if(queryTerm.compareTo(term)==0)
     			n++;
         }
@@ -288,8 +283,8 @@ public class QueryExpansion {
     			if(s.compareTo(term)==0){
     				n++;
     				break;
-	    		}
-                }
+    			}
+    	}
     	return Math.log(doc.size()/n);
     }
     
@@ -298,7 +293,7 @@ public class QueryExpansion {
         
     	double n = 0;
     	for(String queryTerm: originalQuery.keySet()){
-            
+            term = stemmer.stem(term);
     			if(queryTerm.compareTo(term)==0){
     				n++;
     				break;
@@ -313,22 +308,21 @@ public class QueryExpansion {
         KrovetzStemmer stemmer = new KrovetzStemmer();
         String newQuery ="";
         int releventCollectionSize = files.size(); //|N|
-        int localVocabularySize = 0; //|V|
+        
         int localStemSize = 0; //|S|
         fileContents = new ArrayList[releventCollectionSize];
         originalQuery = getQuery(oldQuery); //holds the query stems. will update with the matrix row later
         
         
-        //maintain a list of local vocabualary found in relevent documents as well as the ount for each document.
+        //maintain a list of local vocabulary found in relevant documents
         //will need this for the association matrix
         HashMap<String, HashMap<Integer, Integer>> localVocab = getLocalVocabulary(files);
-        localVocabularySize = localVocab.size();
         HashMap<String, String> localStemmedVocab = getLocalStemmedVocabulary(localVocab);
         localStemSize = localStemmedVocab.size();
         double [][] correlationMatrix = new double[localStemSize][localStemSize];
+        
         //check to make sure that the terms from the original query appear at least once in the documents.
         //if not return original query
-        
         int count =0;
         oldQuery = "";
         for(String key: originalQuery.keySet()){
@@ -381,14 +375,9 @@ public class QueryExpansion {
               int keywordJCount = tempo.length;
               tempo = localStemmedVocab.get(key).split(",");
               int keywordICount = tempo.length;
-              
               int cross = keywordICount * keywordJCount;
               current = current/cross; //normalizes value in current
-              
               correlationMatrix[rowCount][i] = current;
-              
-              
-              
           }
           
           rowCount++;//rowCount is for correlation matrix
@@ -404,7 +393,6 @@ public class QueryExpansion {
                 if(k!=i){ //we dont take the dot product of the vector against itself
                 for(int j=0; j< localStemmedVocab.size(); j++){
                     results[i]+= correlationMatrix[i][j]* correlationMatrix[k][j];
-                
                 }
                 }else{
                     results[i] =0.0;
@@ -438,17 +426,15 @@ public class QueryExpansion {
               results[i] = results[i]/(double)cross;
               
             }
-            
-            
         }
         
         int[] topThreeRows = new int[3];
         double[] topThree = new double[3];
         for(int i=0; i < results.length; i++){
-         double result = results[i];
-         int row = i;
-         double temp = 0.0;
-         int tempRow = 0;
+        	double result = results[i];
+        	int row = i;
+        	double temp = 0.0;
+        	int tempRow = 0;
             if(topThree[0]< result){
                 temp = topThree[0];
                 tempRow = topThreeRows[0];
@@ -493,7 +479,6 @@ public class QueryExpansion {
     public String getMetricClusterExpansion(String oldQuery, ArrayList<String> files){ //metric clusters
         String newQuery ="";
         int releventCollectionSize = files.size(); //|N|
-        int localVocabularySize = 0; //|V|
         int localStemSize = 0; //|S|
         fileContents = new ArrayList[releventCollectionSize];
         originalQuery = getQuery(oldQuery); //holds the query stems. will update with the matrix row later
@@ -502,7 +487,7 @@ public class QueryExpansion {
         //maintain a list of local vocabualary found in relevent documents as well as the ount for each document.
         //will need this for the association matrix
         HashMap<String, HashMap<Integer, Integer>> localVocab = getLocalVocabulary(files);
-        localVocabularySize = localVocab.size();
+        
         HashMap<String, String> localStemmedVocab = getLocalStemmedVocabulary(localVocab);
         localStemSize = localStemmedVocab.size();
         
@@ -526,11 +511,9 @@ public class QueryExpansion {
         
         newQuery = oldQuery;
         for(String key: originalQuery.keySet()){
-            
             String stem = key;
             KrovetzStemmer stemmer = new KrovetzStemmer();
             stem = stemmer.stem(stem);//set string you need to stem
-            
             
             double[][] correllationMatrix = getMetricCorrellation(releventCollectionSize, 
                     localStemSize, stem, localStemmedVocab, localVocab, files, originalQuery);
@@ -587,7 +570,7 @@ public class QueryExpansion {
               
           }
           
-          //add to expadned query
+          //add to expanded query
           newQueryTermRows.add(topTwoTerms[1]);
           newQueryTermRows.add(topTwoTerms[0]);
           
@@ -627,10 +610,7 @@ public class QueryExpansion {
                 String keywordJ = stemmer.stem(key);
                 
                     if(keywordJ.compareTo(keywordI)!=0){
-                    double currentGap = 0.0;
                     
-                        boolean found = false;
-                        
                         if(fileContents[j].contains(keywordI)&& fileContents[j].contains(keywordJ)){
                             
                             int keywordIOccurenceCount = Collections.frequency(fileContents[j], keywordI);
@@ -661,14 +641,10 @@ public class QueryExpansion {
                                     
                                     if(keywordIPositions.get(g)<keywordJPositions.get(h)){
                                         int tempGap = keywordJPositions.get(h) - keywordIPositions.get(g);
-                                        //if(tempGap!=1)
-                                          //  tempGap+=1;
                                         keywordIJGaps.add(tempGap);
                                                 
                                     }else if(keywordIPositions.get(g)>keywordJPositions.get(h)){
                                         int tempGap = keywordIPositions.get(g) - keywordJPositions.get(h);
-                                        //if(tempGap!=1)
-                                          //  tempGap+=1;
                                         keywordIJGaps.add(tempGap);
                                     }
                                     
@@ -677,17 +653,15 @@ public class QueryExpansion {
                             }
                             
                 for(int g=0; g<keywordIJGaps.size(); g++){
-                    
                     correllation+= (double)1/keywordIJGaps.get(g);
-                    
                 }
                 
                 matrix[row][j]= correllation;
                         }   
                 row++;
+                    }
                 }
-            }
-            }
+            }	
         }
         
         return matrix;

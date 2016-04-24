@@ -25,7 +25,7 @@ public class SearchStubDAOTest {
 
 	@Test
 	public void testGetQueryExpansionSearch() {
-		SearchExpansionResults r = s.getQueryExpansionSearch("smarttv size 32 inch");
+		SearchExpansionResults r = s.getQueryExpansionSearch("cou size 32 inch");
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String jsonOutput = gson.toJson(r);
 		System.out.println(jsonOutput);
