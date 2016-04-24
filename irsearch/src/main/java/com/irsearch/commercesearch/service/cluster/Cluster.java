@@ -1,7 +1,6 @@
 package com.irsearch.commercesearch.service.cluster;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.irsearch.commercesearch.model.SearchClusterResults;
 
 import com.irsearch.commercesearch.model.SearchEntity;
 
@@ -15,6 +14,8 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.Vector;
+
+import com.irsearch.commercesearch.model.ClusterEntity;
 
 public class Cluster {
     HashMap<String, Integer> clusterAssignments;
@@ -72,7 +73,7 @@ public class Cluster {
         this.clusterTitles = (HashMap<Integer, String>) loadModel(fileName);
     }
 
-    public JSONArray addResults(Vector<String> results) {
+    public SearchClusterResults addResults(Vector<String> results) {
         List<SearchEntity> resultList = new ArrayList<SearchEntity>();
         for (String result : results) {
             resultList.add(new SearchEntity(result, "", ""));
@@ -80,7 +81,7 @@ public class Cluster {
         return addResults(resultList);
     }
 
-    public JSONArray addResults(List<SearchEntity> results) {
+    public SearchClusterResults addResults(List<SearchEntity> results) {
         TreeMap<Integer, Integer> clusterCounts = new TreeMap<Integer, Integer>();
 
         Vector<SearchEntity> finalPages = new Vector<SearchEntity>();
@@ -108,7 +109,9 @@ public class Cluster {
                 // Quick relevance model; will improve
                 for (Map.Entry<Double, String> bestDist : distances.entrySet()) {
                     double ratio = bestDist.getKey() / bestDistance;
-                    if (ratio > 0.95 && !bestDist.getValue().equalsIgnoreCase(url) && !finalPages.contains(bestDist.getValue())) {
+                    if (ratio > 0.95
+                            && !bestDist.getValue().equalsIgnoreCase(url)
+                            && !finalPages.contains(bestDist.getValue())) {
                         finalPages.add(new SearchEntity(bestDist.getValue(), "", ""));
                         finalUrls.add(bestDist.getValue());
                         count++;
@@ -120,40 +123,27 @@ public class Cluster {
             clusterCounts.put(clusterNum, count);
         }
 
-        
-        //TODO: Wyatt change this to the cluster model and return
-        JSONArray JSONFile = new JSONArray();
-        JSONArray JSONPages = new JSONArray();
-        JSONArray JSONClusters = new JSONArray();
+        SearchClusterResults searchClusterResults = new SearchClusterResults();
+        List<SearchEntity> searchEntities = new ArrayList<SearchEntity>();
+        List<ClusterEntity> clusterEntities = new ArrayList<ClusterEntity>();
+
         for (SearchEntity page : finalPages) {
             // do a lookup for title and snippet here
-            JSONObject jo = new JSONObject();
-            jo.put("url", page.getUrl());
-            jo.put("title", page.getTitle());
-            jo.put("description", page.getDescription());
-            JSONPages.put(jo);
+            searchEntities.add(page);
         }
-
-        JSONFile.put(JSONPages);
 
         for (int i = 0; i < clusterTitles.size(); i++) {
-
             if (!clusterTitles.containsKey(i)) continue;
 
-            JSONObject jo = new JSONObject();
-            jo.put("Cluster", i);
-            jo.put("Title", clusterTitles.get(i));
-            jo.put("Size", clusterCounts.get(i));
-
-            JSONClusters.put(jo);
-            System.out.println("CLUSTER #" + i + " done.");
+            clusterEntities.add(new ClusterEntity(i,
+                    clusterTitles.get(i),
+                    clusterCounts.get(i)));
         }
 
-        JSONFile.put(JSONClusters);
+        searchClusterResults.setClusters(clusterEntities);
+        searchClusterResults.setResults(searchEntities);
 
-        System.out.println(JSONFile.toString());
-
-        return JSONFile;
+        return searchClusterResults;
     }
 
 }

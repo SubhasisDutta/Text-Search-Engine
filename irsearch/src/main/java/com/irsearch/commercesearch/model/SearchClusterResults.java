@@ -3,13 +3,13 @@ package com.irsearch.commercesearch.model;
 import java.util.List;
 
 public class SearchClusterResults {
-	private int resultCount;
 	private List<SearchEntity> results;
-	private long executionTime;
-	private String initialQuery;
-	
-	//TODO: Wyatt review list of Clusters add any other u feel relevant
 	private List<ClusterEntity> clusters;
+
+	private int resultCount;
+	private long executionTime;
+
+	//TODO: Wyatt review list of Clusters add any other u feel relevant
 
 	public int getResultCount() {
 		return resultCount;
@@ -33,14 +33,6 @@ public class SearchClusterResults {
 
 	public void setExecutionTime(long executionTime) {
 		this.executionTime = executionTime;
-	}
-
-	public String getInitialQuery() {
-		return initialQuery;
-	}
-
-	public void setInitialQuery(String initialQuery) {
-		this.initialQuery = initialQuery;
 	}
 
 	public List<ClusterEntity> getClusters() {
