@@ -21,30 +21,42 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 import org.json.JSONException;
+
 import com.irsearch.commercesearch.init.JSONParser;
 import com.irsearch.commercesearch.model.SearchEntity;
+import com.irsearch.commercesearch.model.SearchExpansionResults;
+import com.irsearch.commercesearch.model.SearchResults;
 
 public class Searcher {
 
 	public final static String indexDirectoryPath = "IndexData";
 	public static List<SearchEntity> finalList = new ArrayList<SearchEntity>();
 	public static List<SearchEntity> finalExpList = new ArrayList<SearchEntity>();
-	
+	public static int resultCount;
 		
-	public List<SearchEntity> searchFiles(String srchQuery) throws IOException, ParseException, JSONException{
+	public SearchResults searchFiles(String srchQuery) throws IOException, ParseException, JSONException{
 		finalList = searchIndex(srchQuery);
 	    System.out.println(srchQuery);
 	    System.out.println(finalList.toString());
-	    return finalList;
+	    SearchResults sr = new SearchResults();
+	    sr.setInitialQuery(srchQuery);
+	    sr.setResultCount(resultCount);
+	    sr.setResults(finalList);
+	    return sr;
 	}
 
-	public List<SearchEntity> searchExpandedQuery(String srchQuery) throws ParseException, IOException, JSONException{
+	public SearchExpansionResults searchExpandedQuery(String srchQuery) throws ParseException, IOException, JSONException{
 		QueryExpansion qe = new QueryExpansion();
 		String expandedQuery = qe.getMetricClusterExpansion(srchQuery, docContent(finalList));
 		finalExpList = searchIndex(expandedQuery);
 	    System.out.println(expandedQuery);
 	    System.out.println(finalExpList.toString());
-	    return finalExpList;
+	    SearchExpansionResults ser = new SearchExpansionResults();
+	    ser.setInitialQuery(srchQuery);
+	    ser.setExpandedQuery(expandedQuery);
+	    ser.setResultCount(resultCount);
+	    ser.setResults(finalExpList);
+	    return ser;
 	}
 	
 	public static List<SearchEntity> searchIndex(String srchQuery) throws ParseException, IOException, JSONException{
@@ -57,12 +69,12 @@ public class Searcher {
 	    QueryParser parser = new QueryParser(field, analyzer);
 	    Query query = parser.parse(srchQuery);
 	    System.out.println("Searching for: " + query.toString(field));
-	    TopDocs td = searcher.search(query, 50);
+	    TopDocs td = searcher.search(query, 150000);
 	    ScoreDoc[] sd = td.scoreDocs;
 	    if(sd.length <= 0){
 	    	System.out.println("No matching documents");
 	    }
-	    for(int i = 0; i < sd.length; i++){
+	    for(int i = 0; i < 50; i++){
 	    	Document doc1 = searcher.doc(sd[i].doc);
 	    	String filePath = doc1.get("path");
 	    	Path p = Paths.get(filePath);
@@ -72,6 +84,7 @@ public class Searcher {
 	    	System.out.println(data.getUrl());
 	    	tempList.add(data);
 	    }
+	    resultCount = sd.length;
 	    return tempList;
 	}
 	
