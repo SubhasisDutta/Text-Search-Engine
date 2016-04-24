@@ -2,16 +2,17 @@ package com.irsearch.commercesearch.service.queryretrival;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import opennlp.tools.stemmer.PorterStemmer;
+import org.lemurproject.kstem.KrovetzStemmer;
 
 
 public class QueryExpansion {
-		
+     
     private HashMap<String, Integer> stopWords;
     private HashMap<String, Integer> originalQuery;
     private ArrayList<String> [] fileContents;
@@ -22,23 +23,474 @@ public class QueryExpansion {
     }
 
     private void loadStopWords() {
-
-        try {
-            Scanner scanner = new Scanner(new File("stopwords"));
-
-            while (scanner.hasNextLine()) {
-                stopWords.put(scanner.nextLine(), Integer.MIN_VALUE);
-            }
-
-        } catch (FileNotFoundException e) {
-            System.err.println(e);
-            System.exit(1);
-        }
+        
+        
+        stopWords.put("about",Integer.MIN_VALUE);
+        stopWords.put("after",Integer.MIN_VALUE);
+        stopWords.put("against",Integer.MIN_VALUE);
+        stopWords.put("am",Integer.MIN_VALUE);
+        stopWords.put("and",Integer.MIN_VALUE);
+        stopWords.put("are",Integer.MIN_VALUE);
+        stopWords.put("as",Integer.MIN_VALUE);
+        stopWords.put("be",Integer.MIN_VALUE);
+        stopWords.put("been",Integer.MIN_VALUE);
+        stopWords.put("being",Integer.MIN_VALUE);
+        stopWords.put("between",Integer.MIN_VALUE);
+        stopWords.put("but",Integer.MIN_VALUE);
+        stopWords.put("can't",Integer.MIN_VALUE);
+        stopWords.put("could",Integer.MIN_VALUE);
+        stopWords.put("did",Integer.MIN_VALUE);
+        stopWords.put("do",Integer.MIN_VALUE);
+        stopWords.put("doesn't",Integer.MIN_VALUE);
+        stopWords.put("don't",Integer.MIN_VALUE);
+        stopWords.put("during",Integer.MIN_VALUE);
+        stopWords.put("few",Integer.MIN_VALUE);
+        stopWords.put("from",Integer.MIN_VALUE);
+        stopWords.put("had",Integer.MIN_VALUE);
+        stopWords.put("has",Integer.MIN_VALUE);
+        stopWords.put("have",Integer.MIN_VALUE);
+        stopWords.put("having",Integer.MIN_VALUE);
+        stopWords.put("he'd",Integer.MIN_VALUE);
+        stopWords.put("he's",Integer.MIN_VALUE);
+        stopWords.put("here",Integer.MIN_VALUE);
+        stopWords.put("hers",Integer.MIN_VALUE);
+        stopWords.put("him",Integer.MIN_VALUE);
+        stopWords.put("his",Integer.MIN_VALUE);
+        stopWords.put("how's",Integer.MIN_VALUE);
+        stopWords.put("i'd",Integer.MIN_VALUE);
+        stopWords.put("i'm",Integer.MIN_VALUE);
+        stopWords.put("if",Integer.MIN_VALUE);
+        stopWords.put("into",Integer.MIN_VALUE);
+        stopWords.put("isn't",Integer.MIN_VALUE);
+        stopWords.put("it's",Integer.MIN_VALUE);
+        stopWords.put("itself",Integer.MIN_VALUE);
+        stopWords.put("me",Integer.MIN_VALUE);
+        stopWords.put("most",Integer.MIN_VALUE);
+        stopWords.put("my",Integer.MIN_VALUE);
+        stopWords.put("no",Integer.MIN_VALUE);
+        stopWords.put("not",Integer.MIN_VALUE);
+        stopWords.put("off",Integer.MIN_VALUE);
+        stopWords.put("once",Integer.MIN_VALUE);
+        stopWords.put("or",Integer.MIN_VALUE);
+        stopWords.put("ought",Integer.MIN_VALUE);
+        stopWords.put("ours",Integer.MIN_VALUE);
+        stopWords.put("out",Integer.MIN_VALUE);
+        stopWords.put("own",Integer.MIN_VALUE);
+        stopWords.put("shan't",Integer.MIN_VALUE);
+        stopWords.put("she'd",Integer.MIN_VALUE);
+        stopWords.put("she's",Integer.MIN_VALUE);
+        stopWords.put("shouldn't",Integer.MIN_VALUE);
+        stopWords.put("some",Integer.MIN_VALUE);
+        stopWords.put("than",Integer.MIN_VALUE);
+        stopWords.put("that's",Integer.MIN_VALUE);
+        stopWords.put("their",Integer.MIN_VALUE);
+        stopWords.put("them",Integer.MIN_VALUE);
+        stopWords.put("then",Integer.MIN_VALUE);
+        stopWords.put("there's",Integer.MIN_VALUE);
+        stopWords.put("they",Integer.MIN_VALUE);
+        stopWords.put("they'll",Integer.MIN_VALUE);
+        stopWords.put("they've",Integer.MIN_VALUE);
+        stopWords.put("those",Integer.MIN_VALUE);
+        stopWords.put("to",Integer.MIN_VALUE);
+        stopWords.put("under",Integer.MIN_VALUE);
+        stopWords.put("up",Integer.MIN_VALUE);
+        stopWords.put("was",Integer.MIN_VALUE);
+        stopWords.put("we",Integer.MIN_VALUE);
+        stopWords.put("we'll",Integer.MIN_VALUE);
+        stopWords.put("we've",Integer.MIN_VALUE);
+        stopWords.put("weren't",Integer.MIN_VALUE);
+        stopWords.put("what's",Integer.MIN_VALUE);
+        stopWords.put("when's",Integer.MIN_VALUE);
+        stopWords.put("where's",Integer.MIN_VALUE);
+        stopWords.put("while",Integer.MIN_VALUE);
+        stopWords.put("who's",Integer.MIN_VALUE);
+        stopWords.put("why",Integer.MIN_VALUE);
+        stopWords.put("with",Integer.MIN_VALUE);
+        stopWords.put("would",Integer.MIN_VALUE);
+        stopWords.put("you",Integer.MIN_VALUE);
+        stopWords.put("you'll",Integer.MIN_VALUE);
+        stopWords.put("you've",Integer.MIN_VALUE);
+        stopWords.put("yours",Integer.MIN_VALUE);
+        stopWords.put("yourselves",Integer.MIN_VALUE);
 
     }
     
+    public String getRocchioExpansion(String oldQuery, ArrayList<String> files){
+        
+        String newQuery = "";
+        int releventCollectionSize = files.size(); //|N|
+        int localVocabularySize = 0; //|V|
+        int localStemSize = 0; //|S|
+        
+        fileContents = new ArrayList[releventCollectionSize];
+        originalQuery = getQuery(oldQuery); //holds the query stems. will update with the matrix row later
+        ArrayList<Integer> newQueryTermRows = new ArrayList<Integer>();
+        
+        HashMap<String, HashMap<Integer, Integer>> localVocab = getLocalVocabulary(files);
+        localVocabularySize = localVocab.size();
+        HashMap<String, String> localStemmedVocab = getLocalStemmedVocabulary(localVocab);
+        localStemSize = localStemmedVocab.size();
+        
+        ArrayList<double[]> documentVectors= new ArrayList<double[]>();
+        
+        Map<String, String> sortedMap = new TreeMap<String, String>(localStemmedVocab);
+        for(int j=0; j<fileContents.length; j++){
+                ArrayList<String> s = fileContents[j];
+	    	double[] d = new double[localStemmedVocab.size()];
+                int i=0;
+	    	for(String key: sortedMap.keySet()){
+                    
+	    		d[i] = tf(s,localStemmedVocab.get(key)) * idf(s,localStemmedVocab.get(key));
+                        if(d[i]!=d[i])//check if NaN
+                            d[i]=0;
+                        
+                        i++;
+                        
+                        
+                }
+	    	documentVectors.add(d);
+                
+
+	    }
+        
+        
+        double alpha = 1;
+        double beta = .75;
+        
+        
+        double[] relevantDocVectorSum = new double[localStemmedVocab.size()];
+        
+        for(int j=0; j<localStemmedVocab.size(); j++){ //column
+            double total = 0.0;
+            
+            for(int i =0; i < documentVectors.size(); i++){ //row
+           
+                 total+= documentVectors.get(i)[j];
+                
+            }
+           
+            relevantDocVectorSum[j]+= total* beta*(1/(double)releventCollectionSize);
+            
+            
+        }
+        
+        double [] queryVector = new double[localStemmedVocab.size()];
+        int queryVectorRow = 0;
+        for(String currentLocalVocabTerm: sortedMap.keySet()){
+            
+            double result = 0.0;
+            String queryTerm ="";
+                for(String currentQueryTerm: originalQuery.keySet() ){
+                
+                if(currentLocalVocabTerm.compareTo(currentQueryTerm)==0){
+                    queryTerm = currentQueryTerm;
+                    result = tfQuery(originalQuery, currentQueryTerm)*idfQuery(originalQuery, currentQueryTerm);
+                    break;
+                }
+            }
+            
+            queryVector[queryVectorRow] = result*alpha;
+            if(result!=0)
+                originalQuery.put(queryTerm, queryVectorRow);
+            queryVectorRow++;
+        }
+        
+        
+        double[] modifiedQueryVector = new double[localStemmedVocab.size()];
+
+
+        for(int i=0; i <localStemmedVocab.size(); i++){
+            modifiedQueryVector[i] = queryVector[i]+ relevantDocVectorSum[i];
+            
+        }
+        
+        
+         int[] topThreeRows = new int[3];
+        double[] topThree = new double[3];
+        for(int i=0; i < modifiedQueryVector.length; i++){
+            boolean partOfOriginalQuery = false;
+            for(String queryTerm: originalQuery.keySet()){
+                if(originalQuery.get(queryTerm)==i){
+                    partOfOriginalQuery=true;
+                }
+            }
+            if(!partOfOriginalQuery){
+                double result = modifiedQueryVector[i];
+                int row = i;
+                double temp = 0.0;
+                int tempRow = 0;
+                if(topThree[0]< result){
+                    temp = topThree[0];
+                    tempRow = topThreeRows[0];
+                    topThree[0] = result;
+                    topThreeRows[0] = row;
+                    result = temp;
+                    row = tempRow;     
+                }
+                if(topThree[1]< result){
+                    temp = topThree[1];
+                    tempRow = topThreeRows[1];
+                    topThree[1] = result;
+                    topThreeRows[1] = row;
+                    result = temp;
+                    row = tempRow;
+                }
+                    if(topThree[2]< result){
+                    temp = topThree[2];
+                    tempRow = topThreeRows[2];
+                    topThree[2] = modifiedQueryVector[i];
+                    topThreeRows[2] = row;
+                    result = temp;
+                    row = tempRow;
+                }
+            } 
+        }
+        
+        for(int i=0; i< topThree.length; i++)
+                newQueryTermRows.add(topThreeRows[i]);
+        
+        newQuery = getNewQueryTerms(newQueryTermRows,localStemmedVocab, oldQuery);
+        
+        
+        return newQuery;
+    }
     
-    public String expandQuery2(String oldQuery, ArrayList<String> files){
+    static double tf(ArrayList<String> doc, String term){
+        KrovetzStemmer stemmer = new KrovetzStemmer();
+        
+    	double n = 0;
+    	for(int i=0; i<doc.size(); i++){
+            String s = stemmer.stem(doc.get(i));
+    		if(s.compareTo(term)==0)
+    			n++;
+        }
+    	return n/doc.size();
+    }
+    
+    static double tfQuery(HashMap<String, Integer> originalQuery, String term){
+        KrovetzStemmer stemmer = new KrovetzStemmer();
+        
+    	double n = 0;
+    	for(String queryTerm : originalQuery.keySet()){
+            
+    		if(queryTerm.compareTo(term)==0)
+    			n++;
+        }
+    	return n/originalQuery.size();
+    }
+    
+    private  double idf(ArrayList<String> doc, String term){
+        KrovetzStemmer stemmer = new KrovetzStemmer();
+        
+    	double n = 0;
+    	for(int i=0; i<doc.size(); i++){
+            String s = stemmer.stem(doc.get(i));
+    			if(s.compareTo(term)==0){
+    				n++;
+    				break;
+	    		}
+                }
+    	return Math.log(doc.size()/n);
+    }
+    
+    private  double idfQuery(HashMap<String, Integer> originalQuery, String term){
+        KrovetzStemmer stemmer = new KrovetzStemmer();
+        
+    	double n = 0;
+    	for(String queryTerm: originalQuery.keySet()){
+            
+    			if(queryTerm.compareTo(term)==0){
+    				n++;
+    				break;
+	    		}
+                }
+    	return Math.log(originalQuery.size()/n);
+    }
+    
+    
+    
+    public String getScalarClusterExpansion(String oldQuery, ArrayList<String> files){
+        KrovetzStemmer stemmer = new KrovetzStemmer();
+        String newQuery ="";
+        int releventCollectionSize = files.size(); //|N|
+        int localVocabularySize = 0; //|V|
+        int localStemSize = 0; //|S|
+        fileContents = new ArrayList[releventCollectionSize];
+        originalQuery = getQuery(oldQuery); //holds the query stems. will update with the matrix row later
+        
+        
+        //maintain a list of local vocabualary found in relevent documents as well as the ount for each document.
+        //will need this for the association matrix
+        HashMap<String, HashMap<Integer, Integer>> localVocab = getLocalVocabulary(files);
+        localVocabularySize = localVocab.size();
+        HashMap<String, String> localStemmedVocab = getLocalStemmedVocabulary(localVocab);
+        localStemSize = localStemmedVocab.size();
+        double [][] correlationMatrix = new double[localStemSize][localStemSize];
+        //check to make sure that the terms from the original query appear at least once in the documents.
+        //if not return original query
+        
+        int count =0;
+        oldQuery = "";
+        for(String key: originalQuery.keySet()){
+            oldQuery += key+" ";
+            if(localStemmedVocab.containsKey(key))
+                count++;
+        }
+        if(count == 0 )
+            return oldQuery;
+        
+        ArrayList<Integer> newQueryTermRows = new ArrayList<Integer>();
+        
+        /* matrix with rows of stems and columns of documents. one for each Query term?? I think so...*/
+        
+        newQuery = oldQuery;
+        Map<String, String> sortedLocalVocabMap = new TreeMap<String, String>(localStemmedVocab);
+        
+        int rowCount = 0;
+        for(String key: sortedLocalVocabMap.keySet()){
+            
+            String stem = key;
+            
+            stem = stemmer.stem(stem);//set string you need to stem
+            
+            
+            double[][] correllationMatrix = getMetricCorrellation(releventCollectionSize, 
+                    localStemSize, stem, localStemmedVocab, localVocab, files, originalQuery);
+            
+          
+          for(int i=0; i<localStemSize; i++){ //i can be used for column
+              double current = 0.0;
+              for(int j=0;j <releventCollectionSize; j++){
+                  current+= correllationMatrix[i][j];
+                  
+              }
+              //normalize
+              //get current Local Stem
+              int row = 0;
+              String t = "";
+              Map<String, String> sortedMap = new TreeMap<String, String>(localStemmedVocab);
+              for(String term: sortedMap.keySet()){
+                  if(row==i){
+                      t = term;
+                      break;
+                  }
+                  row++;
+              }
+              
+              String [] tempo = localStemmedVocab.get(t).split(",");
+              int keywordJCount = tempo.length;
+              tempo = localStemmedVocab.get(key).split(",");
+              int keywordICount = tempo.length;
+              
+              int cross = keywordICount * keywordJCount;
+              current = current/cross; //normalizes value in current
+              
+              correlationMatrix[rowCount][i] = current;
+              
+              
+              
+          }
+          
+          rowCount++;//rowCount is for correlation matrix
+          
+        }
+        
+        
+        double [] results = new double[localStemmedVocab.size()];
+        
+        
+        for(int i =0; i<localStemmedVocab.size(); i++){ //i is row i.e. current vector
+            for(int k = 0; k <localStemmedVocab.size(); k++){
+                if(k!=i){ //we dont take the dot product of the vector against itself
+                for(int j=0; j< localStemmedVocab.size(); j++){
+                    results[i]+= correlationMatrix[i][j]* correlationMatrix[k][j];
+                
+                }
+                }else{
+                    results[i] =0.0;
+                    
+                }
+                //normalize
+              int rowK = 0;
+              int rowI =0 ;
+              String termK = "";
+              String termI ="";
+              Map<String, String> sortedMap = new TreeMap<String, String>(localStemmedVocab);
+              for(String term: sortedMap.keySet()){
+                  if(rowK==k){
+                      termK = term;
+                     
+                  }
+                  if(rowI == i){
+                      termI = term;
+                      
+                  }
+                  rowK++;
+                  rowI++;
+              }
+              
+              String [] tempo = localStemmedVocab.get(termK).split(",");
+              int keywordKCount = tempo.length;
+              tempo = localStemmedVocab.get(termI).split(",");
+              int keywordICount = tempo.length;
+              
+              int cross = keywordKCount* keywordICount;
+              results[i] = results[i]/(double)cross;
+              
+            }
+            
+            
+        }
+        
+        int[] topThreeRows = new int[3];
+        double[] topThree = new double[3];
+        for(int i=0; i < results.length; i++){
+         double result = results[i];
+         int row = i;
+         double temp = 0.0;
+         int tempRow = 0;
+            if(topThree[0]< result){
+                temp = topThree[0];
+                tempRow = topThreeRows[0];
+                
+                topThree[0] = result;
+                topThreeRows[0] = row;
+                result = temp;
+                row = tempRow;     
+            }
+            if(topThree[1]< result){
+                temp = topThree[1];
+                tempRow = topThreeRows[1];
+                topThree[1] = result;
+                topThreeRows[1] = row;
+                result = temp;
+                row = tempRow;
+            }
+                if(topThree[2]< result){
+                temp = topThree[2];
+                tempRow = topThreeRows[2];
+                topThree[2] = results[i];
+                topThreeRows[2] = row;
+                result = temp;
+                row = tempRow;
+            }
+            
+        }
+        
+        for(int i=0; i< topThree.length; i++)
+                newQueryTermRows.add(topThreeRows[i]);
+        
+        newQuery = getNewQueryTerms(newQueryTermRows,localStemmedVocab, oldQuery);
+        return newQuery;
+    }
+    
+    
+    
+    
+    
+    
+    
+    public String getMetricClusterExpansion(String oldQuery, ArrayList<String> files){ //metric clusters
         String newQuery ="";
         int releventCollectionSize = files.size(); //|N|
         int localVocabularySize = 0; //|V|
@@ -54,6 +506,20 @@ public class QueryExpansion {
         HashMap<String, String> localStemmedVocab = getLocalStemmedVocabulary(localVocab);
         localStemSize = localStemmedVocab.size();
         
+        
+        //check to make sure that the terms from the original query appear at least once in the documents.
+        //if not return original query
+        
+        int count =0;
+        oldQuery = "";
+        for(String key: originalQuery.keySet()){
+            oldQuery += key+" ";
+            if(localStemmedVocab.containsKey(key))
+                count++;
+        }
+        if(count == 0 )
+            return oldQuery;
+        
         ArrayList<Integer> newQueryTermRows = new ArrayList<Integer>();
         
         /* matrix with rows of stems and columns of documents. one for each Query term?? I think so...*/
@@ -62,13 +528,12 @@ public class QueryExpansion {
         for(String key: originalQuery.keySet()){
             
             String stem = key;
-            
-            PorterStemmer stemmer = new PorterStemmer();
+            KrovetzStemmer stemmer = new KrovetzStemmer();
             stem = stemmer.stem(stem);//set string you need to stem
             
             
             double[][] correllationMatrix = getMetricCorrellation(releventCollectionSize, 
-                    localStemSize, stem, localStemmedVocab, localVocab, files);
+                    localStemSize, stem, localStemmedVocab, localVocab, files, originalQuery);
             
           double[] topTwoCorrellation = new double[2];
           int[] topTwoTerms = new int[2];
@@ -83,6 +548,26 @@ public class QueryExpansion {
                   current+= correllationMatrix[i][j];
                   
               }
+              //normalize
+              //get current Local Stem
+              int row = 0;
+              String t = "";
+              Map<String, String> sortedMap = new TreeMap<String, String>(localStemmedVocab);
+              for(String term: sortedMap.keySet()){
+                  if(row==i){
+                      t = term;
+                      break;
+                  }
+                  row++;
+              }
+              
+              String [] tempo = localStemmedVocab.get(t).split(",");
+              int keywordJCount = tempo.length;
+              tempo = localStemmedVocab.get(key).split(",");
+              int keywordICount = tempo.length;
+              
+              int cross = keywordICount * keywordJCount;
+              current = current/cross; //normalizes value in current
               
               if(current > topTwoCorrellation[0]){
                   double temp = topTwoCorrellation[0];
@@ -108,7 +593,7 @@ public class QueryExpansion {
           
         }
         
-        newQuery = oldQuery+" "+getNewQueryTerms(newQueryTermRows,localStemmedVocab);
+        newQuery = getNewQueryTerms(newQueryTermRows,localStemmedVocab, oldQuery);
         return newQuery;
     }
 
@@ -116,75 +601,92 @@ public class QueryExpansion {
                                             String stem, HashMap<String, 
                                             String> localStemmedVocab, 
                                             HashMap<String, HashMap<Integer, Integer>> localVocab ,
-                                            ArrayList<String> files ){
+                                            ArrayList<String> files, HashMap<String, Integer> originalQuery ){
         
         
         double [][] matrix = new double[localStemSize][collectionSize];
-        
+        KrovetzStemmer stemmer = new KrovetzStemmer();
         
         Map<String, String> sortedMap = new TreeMap<String, String>(localStemmedVocab);
     
         for(int j=0; j < fileContents.length; j++){
             int row =0;
-            String  keywordI = stem;
+            String  keywordI = stemmer.stem(stem);
             for(String key: sortedMap.keySet()){
                 
                 double correllation = 0.0;
-                String keywordJ = key;
-                System.out.println(keywordI+","+keywordJ);
+                
+                boolean proceed = true;
+                for(String term: originalQuery.keySet()){
                     
+                    if(term.compareTo(key)==0)
+                        proceed= false;
+                }
+                
+                if(proceed){
+                String keywordJ = stemmer.stem(key);
+                
+                    if(keywordJ.compareTo(keywordI)!=0){
                     double currentGap = 0.0;
                     
                         boolean found = false;
-                        for(int g=0; g<fileContents[j].size(); g++){
-                               currentGap = 0; 
-                               
-                               if(fileContents[j].get(g).compareTo(keywordI)==0){
-                                   //count the words until we reach keyword j
-                                   found = true;
-                                   currentGap =1;
-                                   g++;
-                                   while(found && g<fileContents[j].size()){
-                                       if(fileContents[j].get(g).compareTo(keywordJ)!=0)
-                                           currentGap++;
-                                       else{
-                                           found = false;
-                                           
-                                       }
-                                       g++;
-                                   }
-                               }else if(fileContents[j].get(g).compareTo(keywordJ)==0){
-                                   //count the words until we reach keyword i
-                                   found = true;
-                                   currentGap =1;
-                                   g++;
-                                   while(found && g<fileContents[j].size()){
-                                       if(fileContents[j].get(g).compareTo(keywordI)!=0)
-                                           currentGap++;
-                                       else{
-                                           found = false;
-                                           
-                                       }
-                                       g++;
-                                   }
-                                   
-                               }
-                               //otherwise do nothing and continue
-                               //if currentGap is greate than 0 and found is = false then we have found something in this iteration and we should add to correlation?
-                               if(!found && currentGap>0){
-                                  correllation+= 1.0/currentGap; 
-                                   
-                               }
-                               
-                        }
                         
+                        if(fileContents[j].contains(keywordI)&& fileContents[j].contains(keywordJ)){
+                            
+                            int keywordIOccurenceCount = Collections.frequency(fileContents[j], keywordI);
+                            int keywordJOccurenceCount = Collections.frequency(fileContents[j], keywordJ);
+                            
+                            ArrayList<Integer> keywordIPositions = new ArrayList<Integer>();
+                            ArrayList<Integer> keywordJPositions = new ArrayList<Integer>();
+                            ArrayList<Integer> keywordIJGaps = new ArrayList<Integer>();
+                           
+                            
+                            for(int g=0; g<fileContents[j].size(); g++){
+                                String current = fileContents[j].get(g);
+                                if(current.compareTo(keywordI)==0){
+                                    keywordIPositions.add(g);
+                                    
+                                }
+                                else if(current.compareTo(keywordJ)==0){
+                                    keywordJPositions.add(g);
+                                    
+                                }  
+                                
+                            }
+                            
+                            for(int g=0; g<keywordIOccurenceCount; g++){
+                                
+                                for(int h=0; h<keywordJOccurenceCount; h++){
+                                    
+                                    
+                                    if(keywordIPositions.get(g)<keywordJPositions.get(h)){
+                                        int tempGap = keywordJPositions.get(h) - keywordIPositions.get(g);
+                                        //if(tempGap!=1)
+                                          //  tempGap+=1;
+                                        keywordIJGaps.add(tempGap);
+                                                
+                                    }else if(keywordIPositions.get(g)>keywordJPositions.get(h)){
+                                        int tempGap = keywordIPositions.get(g) - keywordJPositions.get(h);
+                                        //if(tempGap!=1)
+                                          //  tempGap+=1;
+                                        keywordIJGaps.add(tempGap);
+                                    }
+                                    
+                                }
+                                
+                            }
+                            
+                for(int g=0; g<keywordIJGaps.size(); g++){
                     
+                    correllation+= (double)1/keywordIJGaps.get(g);
                     
+                }
                 
-                 
-                //j is doument number
                 matrix[row][j]= correllation;
+                        }   
                 row++;
+                }
+            }
             }
         }
         
@@ -194,7 +696,7 @@ public class QueryExpansion {
     
     
     
-    public String expandQuery(String oldQuery, ArrayList<String> files) {
+    public String getAssosciationClusterExpansion(String oldQuery, ArrayList<String> files) { //association clusters
 
         String newQuery = "";
         int releventCollectionSize = files.size(); //|N|
@@ -216,10 +718,12 @@ public class QueryExpansion {
         //if not return original query
         
         int count =0;
-        for(String key: originalQuery.keySet())
+        oldQuery = "";
+        for(String key: originalQuery.keySet()){
+            oldQuery += key+" ";
             if(localStemmedVocab.containsKey(key))
                 count++;
-        
+        }
         if(count == 0 )
             return oldQuery;
         
@@ -236,7 +740,7 @@ public class QueryExpansion {
        
        //TODO add the original query to the new Query term rows, so we do not duplicate.
 
-       //first we need to get the row each query term reside in
+       //first we need to get the row each query term resides in
 
        for(String key: originalQuery.keySet()){
            newQueryTermRows.add(originalQuery.get(key));
@@ -313,15 +817,15 @@ public class QueryExpansion {
             
        }
        
-       newQuery = /*oldQuery+" "+*/getNewQueryTerms(newQueryTermRows,localStemmedVocab);
+       newQuery = /*oldQuery+" "+*/getNewQueryTerms(newQueryTermRows,localStemmedVocab, oldQuery);
 
         //Map<String, Integer> sortedMap = new TreeMap<String, Integer>(localVocab);
         return newQuery;
     }
 
     
-    private String getNewQueryTerms(ArrayList<Integer> newQueryTermRows , HashMap<String, String> localStemmedVocab){
-        String query ="";
+    private String getNewQueryTerms(ArrayList<Integer> newQueryTermRows , HashMap<String, String> localStemmedVocab, String oldQuery){
+        String query =oldQuery+" ";
         
         Map<String, String> sortedMap = new TreeMap<String, String>(localStemmedVocab);
 
@@ -333,9 +837,9 @@ public class QueryExpansion {
             if(rowNeeded == row){
              
              //if(!query.contains(key))
-               String [] word = sortedMap.get(key).split(",");
-             
-                query+= word[0]+" ";
+               String word = key;//sortedMap.get(key).split(",");
+                if(!query.contains(word))
+                    query+= word+" ";
              break;
              
             }
@@ -354,9 +858,10 @@ public class QueryExpansion {
                 String nextToken = tokens.nextToken();
                 if (!stopWords.containsKey(nextToken) && nextToken.length() > 2) {
                     String stem = nextToken;
-                    PorterStemmer stemmer = new PorterStemmer();
+                    //PorterStemmer stemmer = new PorterStemmer();
+                    KrovetzStemmer stemmer = new KrovetzStemmer();
                     stem = stemmer.stem(stem);//set string you need to stem
-
+                    
                     if(!query.containsKey(stem)){
                         query.put(stem, Integer.MIN_VALUE);
                     }
@@ -406,11 +911,21 @@ public class QueryExpansion {
         for (String key : localVocab.keySet()) {
 
             String stem = key;
-            PorterStemmer stemmer = new PorterStemmer();
+            KrovetzStemmer stemmer = new KrovetzStemmer();
             stem = stemmer.stem(stem);//set string you need to stem
-
-            if(stemmedVocab.containsKey(stem))
-                stemmedVocab.put(stem, stemmedVocab.get(stem)+","+key);
+            
+            if(stemmedVocab.containsKey(stem)){
+                
+                String [] lines = stemmedVocab.get(stem).split(",");
+                boolean insert = true;
+                for(int i =0; i <lines.length; i ++){
+                    if(lines[i].compareTo(key)==0)
+                        insert = false;
+                }
+            
+                if(insert)
+                    stemmedVocab.put(stem, stemmedVocab.get(stem)+","+key);
+            }
             else
                 stemmedVocab.put(stem, key);
         }
@@ -419,10 +934,11 @@ public class QueryExpansion {
     }
 
     HashMap<String, HashMap<Integer, Integer>> getLocalVocabulary(ArrayList<String> files) {
-
+        KrovetzStemmer stemmer = new KrovetzStemmer();
         HashMap<String, HashMap<Integer, Integer>>localVocab = new HashMap<String, HashMap<Integer, Integer>>();
-              //<term, HashMap<doc#, tf>>
-              //fileContents.. go ahead and store the file in file contents. we are goign to need it anyway...
+              
+        
+        
         for (int i = 0; i < files.size(); i++) {
             fileContents[i] =  new ArrayList<String>();
             String line = files.get(i);
@@ -436,7 +952,9 @@ public class QueryExpansion {
                 String nextToken = tokens.nextToken();
                 
                 String stem = nextToken;
-                PorterStemmer stemmer = new PorterStemmer();
+                
+                
+                //PorterStemmer stemmer = new PorterStemmer();
                 stem = stemmer.stem(stem);//set string you need to stem
                 fileContents[i].add(stem);
                 if (!stopWords.containsKey(nextToken) && nextToken.length() > 2) {
