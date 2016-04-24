@@ -5,14 +5,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONString;
 import org.jsoup.Jsoup;
 
 import weka.clusterers.SimpleKMeans;
-import weka.core.Attribute;
-import weka.core.FastVector;
-import weka.core.Instance;
-import weka.core.Instances;
+import weka.core.*;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.ConverterUtils.DataSource;
 
@@ -24,111 +20,107 @@ import weka.filters.unsupervised.attribute.StringToWordVector;
 
 public class ClusterFileUtil {
 
-	public static void breakOutFile(String crawlerFile) {
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(crawlerFile));
-			String line;
-			int i = 0;
+	public static void readWebpages(String crawlerDirectory, String saveFile) {
 
-			while ((line = br.readLine()) != null) {
-				JSONObject obj = new JSONObject(line).getJSONObject("Data");
-				String title = Jsoup.parse(obj.getString("Body")).title();
-				JSONObject obj2 = new JSONObject(line);
+		System.out.println("Reading from directory " + crawlerDirectory);
 
-				obj.put("TITLE", title);
+		File dir = new File(crawlerDirectory);
 
-				PrintWriter out = new PrintWriter(String.format("%06d.data", i));
-				out.write(obj.toString());
-				out.close();
-				i++;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (!dir.isDirectory()) {
+			System.out.println("Directory not passed in.  Returning.");
+			return;
 		}
-	}
 
-
-	public static void readWebpages(String crawlerFile, String saveFile) {
 		FastVector atts = new FastVector();
 		atts.addElement(new Attribute("ID"));
 		atts.addElement(new Attribute("url", (FastVector) null));
 		atts.addElement(new Attribute("body", (FastVector) null));
-		
+
 		Instances data = new Instances("Data", atts, 0);
-		
+
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(crawlerFile));
-			String line;
-			
-			while ((line = br.readLine()) != null) {
-				JSONObject obj = new JSONObject(line).getJSONObject("Data");
-				System.out.println(Jsoup.parse(obj.getString("Body")).title());
-				double[] vals = new double[3];
-				String body = Jsoup.parse(obj.getString("Body")).body()
-						.text()
-						.replaceAll("\\P{L}", " ")
-						.replaceAll("[^\\x00-\\x7F]", "")
-						.toLowerCase();
-				
-				if (body.length() > 0) {
-					vals[0] = data.numInstances();
-					vals[1] = data.attribute(1).addStringValue(obj.getString("Url"));
-					vals[2] = data.attribute(2).addStringValue(body);
+			for (File file : dir.listFiles()) {
+				System.out.println(file.getName() + " to arff");
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				String line;
+
+				while ((line = br.readLine()) != null) {
+					JSONObject obj = new JSONObject(line).getJSONObject("Data");
+					//System.out.println(Jsoup.parse(obj.getString("Body")).title());
+					double[] vals = new double[3];
+					String body = Jsoup.parse(obj.getString("Body")).body()
+							.text()
+							.replaceAll("\\P{L}", " ")
+							.replaceAll("[^\\x00-\\x7F]", "")
+							.toLowerCase();
+
+					if (body.length() > 0) {
+						vals[0] = data.numInstances();
+						vals[1] = data.attribute(1).addStringValue(obj.getString("Url"));
+						vals[2] = data.attribute(2).addStringValue(body);
+					}
+					data.add(new Instance(1.0, vals));
 				}
-				
-				data.add(new Instance(1.0, vals));
-				
+				br.close();
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//System.out.println(data);
-		
+
+		System.out.println("Saving file: " + saveFile);
+
 		ArffSaver saver = new ArffSaver();
 		saver.setInstances(data);
 		try {
-			saver.setFile(new File(saveFile));	
+			saver.setFile(new File(saveFile));
 			saver.writeBatch();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		System.out.println("Data converted to arff.");
 	}
 
 	public static DataSource getDataSourceFromFile(String dataFileName) {
 		String arffFile = dataFileName;
 
-        if (!StringUtils.equalsIgnoreCase(FilenameUtils.getExtension(dataFileName), "arff")) {
-            // Try to convert to arff
-        	arffFile = dataFileName.replace(FilenameUtils.getExtension(dataFileName), "").concat(".arff");
-        	readWebpages(dataFileName, arffFile);
-        }
-        
-        try {
+		if (!StringUtils.equalsIgnoreCase(FilenameUtils.getExtension(dataFileName), "arff")) {
+			// Try to convert to arff
+			arffFile = dataFileName.replace(FilenameUtils.getExtension(dataFileName), "").concat(".arff");
+			readWebpages(dataFileName, arffFile);
+		}
+
+		try {
 			return new DataSource(arffFile);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        return null;
+		return null;
 	}
-	
+
     public static Instances getData(DataSource source, boolean process) {
         Instances data = null;
         StringToWordVector filter = new StringToWordVector();
-        
+
         try {
         	data = source.getDataSet();
             filter.setInputFormat(data);
-            // -stemmer weka.core.stemmers.SnowballStemmer
-            if (process) {
-            	filter.setOptions(weka.core.Utils.splitOptions("-C -T -N -I 500 -tokenizer weka.core.tokenizers.WordTokenizer"));
+
+			if (process) {
+				filter.setUseStoplist(true);
+				filter.setStopwords(new File(ClusterFileUtil.class.getResource("/com/irsearch/commercesearch/config/clusterStopWords").toURI()));
+				filter.setOutputWordCounts(true);
+				filter.setIDFTransform(true);
+				filter.setLowerCaseTokens(true);
+				filter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NONE, StringToWordVector.TAGS_FILTER));
             	data = Filter.useFilter(data, filter);
             }
         } catch (Exception e) {
         	e.printStackTrace();
-        } 
+        }
         return data;
     }
 
@@ -162,7 +154,8 @@ public class ClusterFileUtil {
         }
     }
 
-	public static HashMap<Integer, String> getClusterTitles(SimpleKMeans kMeans) throws Throwable {
+
+	public static HashMap<Integer, String> getClusterTitles(SimpleKMeans kMeans, int titleLength) throws Throwable {
 
 		HashMap<Integer, String> titles = new HashMap<Integer, String>();
 
@@ -177,7 +170,7 @@ public class ClusterFileUtil {
 
 			StringBuilder sb = new StringBuilder();
 
-			int MAX = 6;
+			int MAX = titleLength;
 			int COUNT = 0;
 			for(Map.Entry<Double,String> entry : importantAttributes.entrySet()) {
 				// @TODO manual approving of titles

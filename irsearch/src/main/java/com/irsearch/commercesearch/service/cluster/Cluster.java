@@ -1,7 +1,6 @@
 package com.irsearch.commercesearch.service.cluster;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.irsearch.commercesearch.model.SearchClusterResults;
 
 import com.irsearch.commercesearch.model.SearchEntity;
 
@@ -16,13 +15,18 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import com.irsearch.commercesearch.model.ClusterEntity;
+
 public class Cluster {
-    HashMap<String, Integer> clusterAssignments;
+    HashMap<String, Double[]> clusterAssignments;
     HashMap<Integer, String> clusterTitles;
     HashMap<Integer, TreeMap<Double, String>> bestDocuments;
 
     public Cluster() {
-        clusterAssignments = new HashMap<String, Integer>();
+        /*
+         * clusterAssignments contains the url and a Double[] containing [clusterAssignment, distance]
+         */
+        clusterAssignments = new HashMap<String, Double[]>();
         clusterTitles = new HashMap<Integer, String>();
         bestDocuments = new HashMap<Integer, TreeMap<Double, String>>();
     }
@@ -45,16 +49,14 @@ public class Cluster {
         return model;
     }
 
-    public void setClusterAssignments(HashMap<String, Integer> clusterAssignments) {
+    public void setClusterAssignments(HashMap<String, Double[]> clusterAssignments) {
         this.clusterAssignments = clusterAssignments;
     }
 
-    @SuppressWarnings("unchecked")
     public void setClusterAssignments(String fileName) {
-        this.clusterAssignments = (HashMap<String, Integer>) loadModel(fileName);
+        this.clusterAssignments = (HashMap<String, Double[]>) loadModel(fileName);
     }
 
-    @SuppressWarnings("unchecked")
     public void setBestDocuments(String fileName) {
         this.bestDocuments = (HashMap<Integer, TreeMap<Double, String>>) loadModel(fileName);
     }
@@ -67,12 +69,32 @@ public class Cluster {
         this.clusterTitles = clusterTitles;
     }
 
-    @SuppressWarnings("unchecked")
-    public void setClusterTitles(String fileName) {
-        this.clusterTitles = (HashMap<Integer, String>) loadModel(fileName);
+    public void setClusterTitles(String clusterTitles) {
+        this.clusterTitles = (HashMap<Integer, String>) loadModel(clusterTitles);
     }
 
-    public JSONArray addResults(Vector<String> results) {
+    public void printClusterTitles() {
+        for (Map.Entry<Integer, String> entry: clusterTitles.entrySet()) {
+            System.out.println(entry.getKey() + " => " + entry.getValue());
+        }
+    }
+
+    public void printClusterAssignments() {
+        for (Map.Entry<String, Double[]> entry: clusterAssignments.entrySet()) {
+            System.out.println(entry.getKey() + " => " + entry.getValue()[0] + ", " + entry.getValue()[1]);
+        }
+    }
+
+    public void printBestDocuments() {
+        for (Map.Entry<Integer, TreeMap<Double, String>> entry: bestDocuments.entrySet()) {
+            System.out.println("DISTANCES FOR CLUSTER #" + entry.getKey());
+            for (Map.Entry<Double, String> entry2: entry.getValue().entrySet()) {
+                System.out.println(entry2.getKey() + " => " + entry2.getValue());
+            }
+        }
+    }
+
+    public SearchClusterResults addResults(Vector<String> results) {
         List<SearchEntity> resultList = new ArrayList<SearchEntity>();
         for (String result : results) {
             resultList.add(new SearchEntity(result, "", ""));
@@ -80,80 +102,123 @@ public class Cluster {
         return addResults(resultList);
     }
 
-    public JSONArray addResults(List<SearchEntity> results) {
-        TreeMap<Integer, Integer> clusterCounts = new TreeMap<Integer, Integer>();
+    public SearchClusterResults addResults(List<SearchEntity> results) {
 
-        Vector<SearchEntity> finalPages = new Vector<SearchEntity>();
-        Vector<String> finalUrls = new Vector<String>();
+        HashMap<String, Double> newRanks = new HashMap<String, Double>();
+        HashMap<String, SearchEntity> searchEntityHashMap = new HashMap<String, SearchEntity>();
 
+        HashMap<Integer, Integer> clustersInResults = new HashMap<Integer, Integer>();
+
+        double originalSize = (double) results.size();
+
+        System.out.println("Original Size: " + originalSize);
+
+        double rankCount = 1;
         for (SearchEntity result : results) {
-            String url = result.getUrl();
-            if (finalUrls.contains(result))
+            searchEntityHashMap.put(result.getUrl(), result);
+            /*
+             * We want an initial rank score to be based on an ratio of the total result set size
+             * for the returned results (~200) over the document's original rank in that result set.
+             */
+            double rankAdd = (originalSize / rankCount);
+
+            /*
+             * If result is in newRanks, it was added for being close to a centroid
+             * and we want to add the initial rank score to the existing score.
+             */
+            if (newRanks.containsKey(result.getUrl())) {
+                rankAdd += newRanks.get(result.getUrl()) + (originalSize / rankCount);
+            }
+
+            /*
+             * If for some reason the url wasn't clustered, continue.
+             */
+            if (!clusterAssignments.containsKey(result.getUrl())) {
                 continue;
-            int clusterNum = clusterAssignments.get(url);
-            // Count how many results come from each cluster.
-            int count = 0;
-            if (clusterCounts.containsKey(clusterNum)) {
-                count = clusterCounts.get(clusterNum);
             }
-            finalPages.add(result);
-            finalUrls.add(result.getUrl());
-            count++;
 
-            if (bestDocuments != null) {
-                TreeMap<Double, String> distances = bestDocuments.get(clusterNum);
 
-                Double bestDistance = distances.firstKey();
 
-                // Quick relevance model; will improve
-                for (Map.Entry<Double, String> bestDist : distances.entrySet()) {
-                    double ratio = bestDist.getKey() / bestDistance;
-                    if (ratio > 0.95 && !bestDist.getValue().equalsIgnoreCase(url) && !finalPages.contains(bestDist.getValue())) {
-                        finalPages.add(new SearchEntity(bestDist.getValue(), "", ""));
-                        finalUrls.add(bestDist.getValue());
-                        count++;
-                        break;
-                    }
+            int assignment = clusterAssignments.get(result.getUrl())[0].intValue();
+
+            /*
+             * We want the cluster score for the document to be equal to the
+             * the best document (closest to the centroid)'s distance over the current url's distance.
+             */
+            rankAdd += (
+                    bestDocuments.get(assignment).firstKey() /
+                            clusterAssignments.get(result.getUrl())[1]
+            );
+            newRanks.put(result.getUrl(), rankAdd);
+
+
+            /*
+             * We want to count how many times each cluster shows up.
+             */
+            if (!clustersInResults.containsKey(assignment)) {
+                clustersInResults.put(assignment, 0);
+            }
+            clustersInResults.put(assignment, clustersInResults.get(assignment) + 1);
+
+            rankCount++;
+        }
+
+        /*
+         * Now we want to add X additional documents
+         */
+
+        double additionalItems = results.size() / 4.0;
+
+        for (Map.Entry<Integer, Integer> counts : clustersInResults.entrySet()) {
+            int cluster = counts.getKey();
+            double bestDistance = bestDocuments.get(cluster).firstKey();
+            double total = (double) counts.getValue();
+
+            int docsToAdd = (int)(((total / originalSize) * additionalItems) + 0.5);
+
+            for (Map.Entry<Double, String> newDocs : bestDocuments.get(cluster).entrySet()) {
+                if (!newRanks.containsKey(newDocs.getValue())) {
+                    newRanks.put(newDocs.getValue(), 0.0);
                 }
+
+                newRanks.put(newDocs.getValue(),
+                        newRanks.get(newDocs.getValue()) + total * (newDocs.getKey() / bestDistance));
+            }
+        }
+
+        /*
+         * Now to reorder them.
+         */
+        TreeMap<Double, SearchEntity> finalRankings = new TreeMap<Double, SearchEntity>();
+        for (Map.Entry<String, Double> newRank : newRanks.entrySet()) {
+            SearchEntity searchEntity = new SearchEntity();
+            if (searchEntityHashMap.containsKey(newRank.getKey())) {
+                // One of the original items, so we have the result.
+                searchEntity = searchEntityHashMap.get(newRank.getKey());
+            } else {
+                // New result; look for result in index.  Need to add lookup
+                searchEntity.setUrl(newRank.getKey());
             }
 
-            clusterCounts.put(clusterNum, count);
+            finalRankings.put(newRank.getValue(), searchEntity);
         }
 
-        
-        //TODO: Wyatt change this to the cluster model and return
-        JSONArray JSONFile = new JSONArray();
-        JSONArray JSONPages = new JSONArray();
-        JSONArray JSONClusters = new JSONArray();
-        for (SearchEntity page : finalPages) {
-            // do a lookup for title and snippet here
-            JSONObject jo = new JSONObject();
-            jo.put("url", page.getUrl());
-            jo.put("title", page.getTitle());
-            jo.put("description", page.getDescription());
-            JSONPages.put(jo);
-        }
-
-        JSONFile.put(JSONPages);
+        SearchClusterResults searchClusterResults = new SearchClusterResults();
+        List<SearchEntity> searchEntities = new ArrayList<SearchEntity>(finalRankings.values());
+        List<ClusterEntity> clusterEntities = new ArrayList<ClusterEntity>();
 
         for (int i = 0; i < clusterTitles.size(); i++) {
-
             if (!clusterTitles.containsKey(i)) continue;
 
-            JSONObject jo = new JSONObject();
-            jo.put("Cluster", i);
-            jo.put("Title", clusterTitles.get(i));
-            jo.put("Size", clusterCounts.get(i));
-
-            JSONClusters.put(jo);
-            System.out.println("CLUSTER #" + i + " done.");
+            clusterEntities.add(new ClusterEntity(i,
+                    clusterTitles.get(i),
+                    clustersInResults.get(i)));
         }
 
-        JSONFile.put(JSONClusters);
+        searchClusterResults.setClusters(clusterEntities);
+        searchClusterResults.setResults(searchEntities);
 
-        System.out.println(JSONFile.toString());
-
-        return JSONFile;
+        return searchClusterResults;
     }
 
 }
