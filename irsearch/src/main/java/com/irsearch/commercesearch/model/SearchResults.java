@@ -5,8 +5,18 @@ import java.util.List;
 public class SearchResults {
 	private int resultCount;
 	private List<SearchEntity> results;
-	private int executionTime;
+	private long executionTime;
+	private String initialQuery;
 	
+	
+	
+	
+	public String getInitialQuery() {
+		return initialQuery;
+	}
+	public void setInitialQuery(String initialQuery) {
+		this.initialQuery = initialQuery;
+	}
 	public int getResultCount() {
 		return resultCount;
 	}
@@ -19,10 +29,10 @@ public class SearchResults {
 	public void setResults(List<SearchEntity> results) {
 		this.results = results;
 	}
-	public int getExecutionTime() {
+	public long getExecutionTime() {
 		return executionTime;
 	}
-	public void setExecutionTime(int executionTime) {
+	public void setExecutionTime(long executionTime) {
 		this.executionTime = executionTime;
 	}
 }

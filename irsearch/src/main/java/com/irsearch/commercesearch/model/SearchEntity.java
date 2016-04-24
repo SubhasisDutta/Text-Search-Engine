@@ -6,6 +6,27 @@ public class SearchEntity {
 	private String url;
 	private String imageUrl;
 	
+	public SearchEntity(){
+		this.url = "";
+		this.title = "";
+		this.description = "";
+		this.imageUrl ="";
+	}
+	
+	public SearchEntity(String url, String title, String description,String imageUrl) {		
+		this.url = url;
+		this.title = title;
+		this.description = description;
+		this.imageUrl =imageUrl;
+	}
+	public SearchEntity(String url, String title, String description) {		
+		this.url = url;
+		this.title = title;
+		this.description = description;
+		this.imageUrl ="";
+	}
+	
+	
 	public String getTitle() {
 		return title;
 	}
