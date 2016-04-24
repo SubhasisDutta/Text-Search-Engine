@@ -99,3 +99,7 @@ span.name {
 #contentTabs md-input-container {
   margin-bottom: 0px;
 }
+#contentTabs md-card md-card-title md-card-title-media .md-media-md {
+  height: auto;
+  max-height: 112px;
+}

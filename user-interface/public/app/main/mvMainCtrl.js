@@ -36,6 +36,22 @@ angular.module('app').controller('mvMainCtrl', function($scope,$resource) {
                 console.log($scope.bingSearchResults.d.results[0]);
                 //console.log($scope.googleSearchResults.items[0]);
             });
+
+            var searchQueryResource = $resource("/api/search/:query");
+            $scope.searchQuerySearchResults = searchQueryResource.get({query:searchQuery},function(){
+                $scope.resultAvailable = true;
+                console.log($scope.searchQuerySearchResults);
+            });
+            var searchQueryExpansionResource = $resource("/api/queryexpansion/:query");
+            $scope.searchQueryExpansionSearchResults = searchQueryExpansionResource.get({query:searchQuery},function(){
+                $scope.resultAvailable = true;
+                console.log($scope.searchQueryExpansionSearchResults);
+            });
+            var searchClusterResource = $resource("/api/clustering/:query");
+            $scope.searchClusterSearchResults = searchClusterResource.get({query:searchQuery},function(){
+                $scope.resultAvailable = true;
+                console.log($scope.searchClusterSearchResults);
+            });
         }
     };
 
