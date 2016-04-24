@@ -21,29 +21,32 @@ public class ClusteringUtils {
 		return newKMeans(data, optionsString, saveFile, false);
 	}
 
-    public static SimpleKMeans newKMeans(Instances data, String optionsString, String saveFile, boolean loadFromFile) {
+	public static SimpleKMeans newKMeans(Instances data, String optionsString, String saveFile, boolean loadFromFile) {
 		SimpleKMeans model = null;
-		if (loadFromFile)
+		if (loadFromFile) {
 			model = (SimpleKMeans) ClusterFileUtil.tryToLoadModel(saveFile);
-    	
-    	if (model == null) {
+		}
+
+		if (model == null) {
 			// @TODO use filter
 
-    		try {
-    			model = new SimpleKMeans();
-    			model.setOptions(Utils.splitOptions(optionsString));    			
-    			model.buildClusterer(data);
-                ClusterFileUtil.saveModel(saveFile, model);
-    		} catch(Exception e) {
-    			e.printStackTrace();
-    			model = null;
-    		}
-    	}
-    	
-    	return model;
-    }
+			try {
+				model = new SimpleKMeans();
+				model.setOptions(Utils.splitOptions(optionsString));
+				System.out.println("Build cluster time!");
+				model.buildClusterer(data);
+				System.out.println("Cluster built");
+				ClusterFileUtil.saveModel(saveFile, model);
+			} catch(Exception e) {
+				e.printStackTrace();
+				model = null;
+			}
+		}
 
-		public static void produceKMeansLabels(SimpleKMeans kMeans, int numLabels) throws Exception {
+		return model;
+	}
+
+	public static void produceKMeansLabels(SimpleKMeans kMeans, int numLabels) throws Exception {
 
 		for (int i = 0; i < kMeans.numberOfClusters(); i++) {
 
@@ -74,20 +77,23 @@ public class ClusteringUtils {
 		}
 	}
 
-    public static HierarchicalClusterer newHier(Instances data, String optionsString, String saveFile) {
-    	 HierarchicalClusterer model = null;//(HierarchicalClusterer) ClusterFileUtil.tryToLoadModel(saveFile);
-    	 
-    	 if (model == null) {
-    		 try {
-    			 model = new HierarchicalClusterer();
-    			 model.setOptions(Utils.splitOptions(optionsString));
-    			 model.buildClusterer(data);
-                 ClusterFileUtil.saveModel(saveFile, model);
-    		 } catch(Exception e) {
-    			 model = null;
-    		 }
-    	 }
-    	 
-    	 return model;
-    }
+	public static HierarchicalClusterer newHierarchy(Instances data, String optionsString, String saveFile, boolean loadFromFile) {
+		HierarchicalClusterer model = null;
+		if (loadFromFile) {
+			model = (HierarchicalClusterer) ClusterFileUtil.tryToLoadModel(saveFile);
+		}
+		if (model == null) {
+			try {
+				model = new HierarchicalClusterer();
+				model.setOptions(Utils.splitOptions(optionsString));
+				model.buildClusterer(data);
+				ClusterFileUtil.saveModel(saveFile, model);
+			} catch(Exception e) {
+				e.printStackTrace();
+				model = null;
+			}
+		}
+
+		return model;
+	}
 }

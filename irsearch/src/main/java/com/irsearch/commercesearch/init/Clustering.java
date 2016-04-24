@@ -25,23 +25,26 @@ public class Clustering {
 	public static final String WEB_PAGES = "./somepages.dat";
 
 	public static void main(String[] args) {
-		// Only cluster code needed in application
+//		loadData();
 		Cluster cluster = new Cluster();
 
-		// Set cluster from java object files
 		cluster.setBestDocuments("./bestDocuments");
 		cluster.setClusterAssignments("./clusterAssignments");
 		cluster.setClusterTitles("./clusterTitles");
 
-		// This takes in a vector<string> or List<Result> and return a JSONObject with additional pages
-		Vector<String> testPages = new Vector<String>();
-		testPages.add("http://www.target.com/p/convenience-concepts-northfield-wall-console-table/-/A-10974416");
-		testPages.add("http://www.target.com/p/threshold-parsons-coffee-table/-/A-16982954");
-		testPages.add("http://www.target.com/tdir/p/beauty/-/N-55r1x");
-		//JSONArray json = cluster.addResults(testPages);  // get this results from Ram
+		cluster.printClusterAssignments();
+
+		cluster.printClusterTitles();
+
+//		Vector<String> testPages = new Vector<String>();
+//		testPages.add("http://www.target.com/p/convenience-concepts-northfield-wall-console-table/-/A-10974416");
+//		testPages.add("http://www.target.com/p/threshold-parsons-coffee-table/-/A-16982954");
+//		testPages.add("http://www.target.com/tdir/p/beauty/-/N-55r1x");
+//
+//		JSONArray json = cluster.addResults(testPages);
 
 //		ClusterFileUtil.breakOutFile("./somepages.dat");
-		//ClusterFileUtil.readWebpages("./somepages.dat", "./testingDat");
+//		ClusterFileUtil.readWebpages("./somepages.dat", "./testingDat");
 //
 //		HashMap<String, Integer> testTreeMap = new HashMap<String, Integer>();
 //
@@ -50,136 +53,161 @@ public class Clustering {
 //		}
 //
 //		ClusterFileUtil.saveModel("./hashMapModel", testTreeMap);
-
 	}
 
-	public static void main2(String[] args) throws Throwable {
-		
-		if (args.length > 1) {
-			DATA_FILE = args[0];
+	public static void loadData() throws Throwable {
+
+		boolean PARSE_CRAWLER_DATA = false;
+		boolean LOAD_INST_FROM_FILE = true;
+		boolean LOAD_MODELS_FROM_FILES = false;
+
+		String CRAWLER_DIRECTORY = "./Crawler";
+		String CRAWLER_ARFF = "./Crawler.arff";
+
+		String MODEL_FILENAME_KMEANS = "./kMeans.model";
+		String CLUSTER_TITLE_FILE = "./clusterTitles";
+		String CLUSTER_BEST_DOCUMENTS_FILE = "./bestDocuments";
+		String CLUSTER_ASSIGNMENTS_FILE = "./clusterAssignments";
+
+		String MODEL_FILENAME_HIER_COMPLETE = "./hier_complete.model";
+		String MODEL_FILENAME_HIER_SINGLE = "./hier_single.model";
+		String MODEL_FILENAME_HIER_CENTROID = "./hier_centroid.model";
+		String MODEL_FILENAME_HIER_NEIGHBOR = "./hier_neighbor.model";
+
+		String INSTANCES_FILE = "./instances.data";
+
+		int TITLE_LENGTH = 20;
+
+		long startTime;
+		long endTime;
+
+		if (PARSE_CRAWLER_DATA) {
+			ClusterFileUtil.readWebpages(CRAWLER_DIRECTORY, CRAWLER_ARFF);
 		}
 
-		DataSource source = ClusterFileUtil.getDataSourceFromFile(WEB_PAGES);
+		System.out.println("Reading in data from arff file.");
 
-		Instances data = ClusterFileUtil.getData(source, true);
-		
-		
+		startTime = System.nanoTime();
+		Instances data = null;
+		if (LOAD_INST_FROM_FILE) {
+			data = (Instances) ClusterFileUtil.tryToLoadModel(INSTANCES_FILE);
+		}
+
+		if (data == null) {
+			data = ClusterFileUtil.getData(ClusterFileUtil.getDataSourceFromFile(CRAWLER_ARFF), true);
+		}
+
+		endTime = System.nanoTime();
+
+		System.out.println("Time to load data: " + ((endTime - startTime)/1000000.0) + "ms");
+
 		if (data == null) {
 			System.out.println("Problem getting data.  Returning.");
+			return;
 		}
 
-		// Clusterers to be used.
-		// Simple k-means: http://weka.sourceforge.net/doc.dev/weka/clusterers/SimpleKMeans.html
-		System.out.println("Creating SimpleKMeans");
-		SimpleKMeans kMeans = ClusteringUtils.newKMeans(data, "-N 10 -O", "kMeans.model", false);
-		//kMeans = null;
+		ClusterFileUtil.saveModel("./instances.data", data);
 
-		System.out.println("Creating hc1");
-		HierarchicalClusterer hc1 = ClusteringUtils.newHier(data, "-N 100 -L COMPLETE -A weka.core.EuclideanDistance", "hier12_12.model");
-		System.out.println("Creating hc2");
-		HierarchicalClusterer hc2 = ClusteringUtils.newHier(data, "-N 100 -L SINGLE -A weka.core.EuclideanDistance", "hier2.model");
-		System.out.println("Creating hc3");
-		HierarchicalClusterer hc3 = ClusteringUtils.newHier(data, "-N 100 -L CENTROID -A weka.core.EuclideanDistance", "hier3.model");
-		System.out.println("Creating hc4");
-		HierarchicalClusterer hc4 = ClusteringUtils.newHier(data, "-N 100 -L NEIGHBOR_JOINING -A weka.core.EuclideanDistance", "single_hier.model");
+		/*
+		 * Clustering Algorithms to be used.
+		 */
+		// Simple K-Means
+		System.out.println("Calculating SimpleKMeans");
+		startTime = System.nanoTime();
+		SimpleKMeans kMeans = ClusteringUtils.newKMeans(data, "-N 100 -C -O", MODEL_FILENAME_KMEANS, LOAD_MODELS_FROM_FILES);
+		if (kMeans == null) {
+			kMeans = ClusteringUtils.newKMeans(data, "-N 100 -O", MODEL_FILENAME_KMEANS, LOAD_MODELS_FROM_FILES);
+		}
+		endTime = System.nanoTime();
 
-		int i=0;
-		HashMap<String, Integer> kMeansAssignments = new HashMap<String, Integer>();
-		HashMap<Integer, TreeMap<Double, String>> centralPages = new HashMap<Integer, TreeMap<Double, String>>();
-		Instances data2 = ClusterFileUtil.getData(source,  false);
-		int[] assignments = kMeans.getAssignments();
+		System.out.println("Time to calculate kMeans: " + ((endTime - startTime)/1000000.0) + "ms");
 
+		// Now let's do some kMeans stuff.
 		EuclideanDistance ed = (EuclideanDistance)kMeans.getDistanceFunction();
-		
+
+		int[] assignments = kMeans.getAssignments();
+		Instances unfilteredData = ClusterFileUtil.getData(ClusterFileUtil.getDataSourceFromFile(CRAWLER_ARFF), false);
+
+		HashMap<String, Double[]> clusterAssignments = new HashMap<String, Double[]>();
+		HashMap<Integer, TreeMap<Double, String>> bestDocuments = new HashMap<Integer, TreeMap<Double, String>>();
+
+		int currentInstance = 0;
+
 		for(int clusterNum : assignments) {
-			kMeansAssignments.put(data2.instance(i).toString(1), clusterNum);
-			
-			if (!centralPages.containsKey(clusterNum)) {
-				centralPages.put(clusterNum, new TreeMap<Double, String>());
+			Double[] clusterAndDistance = new Double[2];
+			clusterAndDistance[0] = (double) clusterNum;
+			clusterAndDistance[1] = ed.distance(data.instance(currentInstance), kMeans.getClusterCentroids().instance(clusterNum));
+
+			clusterAssignments.put(unfilteredData.instance(currentInstance).toString(1), clusterAndDistance);
+
+			if (!bestDocuments.containsKey(clusterNum)) {
+				bestDocuments.put(clusterNum, new TreeMap<Double, String>());
 			}
-			
-			TreeMap<Double, String> temp = centralPages.get(clusterNum);
-			temp.put(ed.distance(data.instance(i), kMeans.getClusterCentroids().instance(clusterNum)), data2.instance(i).toString(1));
-			
-			centralPages.put(clusterNum, temp);
-			
-		    i++;
-		}
-		
-		for (Map.Entry<Integer, TreeMap<Double, String>> clusters : centralPages.entrySet()) {
-			System.out.println("BEST FOR CLUSTER #" + clusters.getKey());
-			for (Map.Entry<Double, String> pages : clusters.getValue().entrySet()) {
-				System.out.println(pages.getKey() + " => " + pages.getValue());
-			}
-		}
-		
-		ClusterFileUtil.saveModel("./bestDocuments", centralPages);
-		
-		for (Map.Entry<String, Integer> entry : kMeansAssignments.entrySet()) {
-			System.out.println(entry.getKey() + " => " + entry.getValue());
-		}
-		
-		ClusterFileUtil.saveModel("./clusterAssignments", kMeansAssignments);
-		
-		System.out.println("Done");
 
+			TreeMap<Double, String> temp = bestDocuments.get(clusterNum);
+			temp.put(ed.distance(data.instance(currentInstance), kMeans.getClusterCentroids().instance(clusterNum)),
+					unfilteredData.instance(currentInstance).toString(1));
 
-		Vector<String> testPages = new Vector<String>();
-		testPages.add("http://www.target.com/p/convenience-concepts-northfield-wall-console-table/-/A-10974416");
-		testPages.add("http://www.target.com/p/threshold-parsons-coffee-table/-/A-16982954");
-		testPages.add("http://www.target.com/tdir/p/beauty/-/N-55r1x");
-		
-		TreeMap<Integer, Integer> clusterCounts = new TreeMap<Integer, Integer>();
-		
-		Vector<String> finalPages = new Vector<String>();
-		
-		for (String url : testPages) {
-			if (finalPages.contains(url))
-				continue;
-			int clusterNum = kMeansAssignments.get(url);
-			// Count how many results come from each cluster.
-			int count = 0;
-			if (clusterCounts.containsKey(clusterNum)) {
-				count = clusterCounts.get(clusterNum);
-			}
-			finalPages.add(url);
-			count++;
-			
-			TreeMap<Double, String> distances = centralPages.get(clusterNum);
-			
-			Double bestDistance = distances.firstKey();
+			bestDocuments.put(clusterNum, temp);
 
-			for (Map.Entry<Double, String> bestDist : distances.entrySet()) {
-				double ratio = bestDist.getKey() / bestDistance;
-				if (ratio > 0.95 && !bestDist.getValue().equalsIgnoreCase(url) && !finalPages.contains(bestDist.getValue())) {
-					finalPages.add(bestDist.getValue());
-					count++;
-					break;
-				}
-			}
-			
-			clusterCounts.put(clusterNum, count);
-		}
-		
-		ClusterFileUtil.produceJSON(kMeans, finalPages, clusterCounts);
-		
-		//System.out.println(kMeans.toString());
-		
-		//ClusteringUtils.produceKMeansLabels(kMeans, 10);
-		
-		ClusterFileUtil.produceJsonKMeansClusters(kMeans, "./test2.json", 10);
-		
-//		kMeansAssignments = (TreeMap<String, Integer>) ClusterFileUtil.tryToLoadModel("./kMeansTreeMap");
-
-		HashMap<String, Integer> testTreeMap = new HashMap<String, Integer>();
-
-		for (int ii = 0; ii < 200000; ii++) {
-			testTreeMap.put("reallylongstringnamewithstuff" + ii, ii);
+			currentInstance++;
 		}
 
-		ClusterFileUtil.saveModel("./clusterTitles", ClusterFileUtil.getClusterTitles(kMeans));
-		ClusterFileUtil.saveModel("./hashMapModel", testTreeMap);
+		ClusterFileUtil.saveModel(CLUSTER_TITLE_FILE, ClusterFileUtil.getClusterTitles(kMeans, TITLE_LENGTH));
+		ClusterFileUtil.saveModel(CLUSTER_BEST_DOCUMENTS_FILE, bestDocuments);
+		ClusterFileUtil.saveModel(CLUSTER_ASSIGNMENTS_FILE, clusterAssignments);
+
+		System.out.println("K-Means is done.");
+
+		// null out clusters we aren't using anymore.
+		kMeans = null;
+
+		// Complete Hierarchical Cluster
+		startTime = System.nanoTime();
+		HierarchicalClusterer completeHier = ClusteringUtils.newHierarchy(data,
+				"-N 100 -L COMPLETE -A weka.core.EuclideanDistance",
+				MODEL_FILENAME_HIER_COMPLETE, LOAD_MODELS_FROM_FILES);
+		endTime = System.nanoTime();
+
+		System.out.println("Time to calculate Complete Hierarchical Cluster: " + ((endTime - startTime)/1000000.0) + "ms");
 
 
+		completeHier = null;
+
+		// Single Hierarchical Cluster
+		startTime = System.nanoTime();
+		HierarchicalClusterer singleHier = ClusteringUtils.newHierarchy(data,
+				"-N 1000 -L SINGLE -A weka.core.EuclideanDistance",
+				MODEL_FILENAME_HIER_SINGLE, LOAD_MODELS_FROM_FILES);
+		endTime = System.nanoTime();
+
+		System.out.println("Time to calculate Single Hierarchical Cluster: " + ((endTime - startTime)/1000000.0) + "ms");
+
+		singleHier = null;
+
+		// Centroid Hierarchical Cluster
+		startTime = System.nanoTime();
+		HierarchicalClusterer centroidCluster = ClusteringUtils.newHierarchy(data,
+				"-N 1000 -L CENTROID -A weka.core.EuclideanDistance",
+				MODEL_FILENAME_HIER_CENTROID, LOAD_MODELS_FROM_FILES);
+		endTime = System.nanoTime();
+
+		System.out.println("Time to calculate Centroid Hierarchical Cluster: " + ((endTime - startTime)/1000000.0) + "ms");
+
+		centroidCluster = null;
+
+
+		// Neighbor-Joining Hierarchical Cluster
+		startTime = System.nanoTime();
+		HierarchicalClusterer neighborCluster = ClusteringUtils.newHierarchy(data,
+				"-N 1000 -L NEIGHBOR_JOINING -A weka.core.EuclideanDistance",
+				MODEL_FILENAME_HIER_NEIGHBOR, LOAD_MODELS_FROM_FILES);
+		endTime = System.nanoTime();
+
+		System.out.println("Time to calculate Neighbor-Joining Hierarchical Cluster: " + ((endTime - startTime)/1000000.0) + "ms");
+
+		neighborCluster = null;
+
+		return;
 	}
 }
