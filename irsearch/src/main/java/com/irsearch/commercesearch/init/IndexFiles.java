@@ -30,8 +30,9 @@ import org.json.JSONException;
 
 public class IndexFiles {
 	// TODO:provide the absolute path to where to where the index will be stored
-	public static final String INDEX_DIRECTORY_PATH = "IndexData/Index";	
-	public static final String inputDocumentDirectoryPath = breakUpPage.OUTPUT_SEPERATE_DATA_FILES;
+	public static final String INDEX_DIRECTORY_PATH = "F:/eclipse/Workspace/LuceneDemoApplication/Index";	
+//	public static final String inputDocumentDirectoryPath = breakUpPage.OUTPUT_SEPERATE_DATA_FILES;
+	public static final String inputDocumentDirectoryPath = "F:/eclipse/Workspace/LuceneDemoApplication/Documents";
 	
 	/**
 	 * Build the index .
@@ -115,13 +116,11 @@ public class IndexFiles {
 		      
 		      if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
 		        // New index, so we just add the document (no old document can be there):
-		        System.out.println("adding " + file);
 		        writer.addDocument(doc);
 		      } else {
 		        // Existing index (an old copy of this document may have been indexed) so 
 		        // we use updateDocument instead to replace the old one matching the exact 
 		        // path, if present:
-		        System.out.println("updating " + file);
 		        writer.updateDocument(new Term("path", file.toString()), doc);
 		      }
 		    }catch(Exception e){

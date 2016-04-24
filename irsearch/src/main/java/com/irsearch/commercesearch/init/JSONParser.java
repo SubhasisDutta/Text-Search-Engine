@@ -29,9 +29,8 @@ public class JSONParser {
 				try {
 					JSONObject json = new JSONObject(line);
 					String url = json.getString("Url");
-					String body = json.getString("Body");
-					JSONObject obj = new JSONObject(line);
-			        String title = Jsoup.parse(obj.getString("Body")).title();
+					String body = Jsoup.parse(json.getString("Body")).text().substring(0, 500);
+			        String title = json.getString("TITLE");
 					res.setUrl(url);
 					res.setTitle(title);
 					res.setDescription(body);

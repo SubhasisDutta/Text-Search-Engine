@@ -29,7 +29,7 @@ import com.irsearch.commercesearch.model.SearchResults;
 
 public class Searcher {
 
-	public final static String indexDirectoryPath = "IndexData";
+	public final static String indexDirectoryPath = "F:/eclipse/Workspace/LuceneDemoApplication/Index";
 	public static List<SearchEntity> finalList = new ArrayList<SearchEntity>();
 	public static List<SearchEntity> finalExpList = new ArrayList<SearchEntity>();
 	public static int resultCount;
@@ -47,10 +47,8 @@ public class Searcher {
 
 	public SearchExpansionResults searchExpandedQuery(String srchQuery) throws ParseException, IOException, JSONException{
 		QueryExpansion qe = new QueryExpansion();
-		String expandedQuery = qe.getMetricClusterExpansion(srchQuery, docContent(finalList));
+		String expandedQuery = qe.getScalarClusterExpansion(srchQuery, docContent(finalList));
 		finalExpList = searchIndex(expandedQuery);
-	    System.out.println(expandedQuery);
-	    System.out.println(finalExpList.toString());
 	    SearchExpansionResults ser = new SearchExpansionResults();
 	    ser.setInitialQuery(srchQuery);
 	    ser.setExpandedQuery(expandedQuery);
@@ -72,7 +70,7 @@ public class Searcher {
 	    TopDocs td = searcher.search(query, 150000);
 	    ScoreDoc[] sd = td.scoreDocs;
 	    if(sd.length <= 0){
-	    	System.out.println("No matching documents");
+
 	    }
 	    for(int i = 0; i < 50; i++){
 	    	Document doc1 = searcher.doc(sd[i].doc);
@@ -81,7 +79,6 @@ public class Searcher {
 			InputStream is = Files.newInputStream(p);
 			json.readJSON(filePath, is);
 	    	SearchEntity data = JSONParser.docMap.get(filePath);
-	    	System.out.println(data.getUrl());
 	    	tempList.add(data);
 	    }
 	    resultCount = sd.length;
@@ -93,7 +90,7 @@ public class Searcher {
 		int i = 0;
 		for(SearchEntity r : rList){
 			if(i < 10){
-				tempList.add(r.getDescription().substring(0, 200));
+				tempList.add(r.getDescription().substring(0, 500));
 			}
 			else{
 				break;
