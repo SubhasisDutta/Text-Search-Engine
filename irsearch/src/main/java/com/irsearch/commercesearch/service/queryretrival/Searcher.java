@@ -1,4 +1,4 @@
-package com.irsearch.commercesearch.service;
+package com.irsearch.commercesearch.service.queryretrival;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
