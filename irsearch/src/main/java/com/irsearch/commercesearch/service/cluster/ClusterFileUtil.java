@@ -5,14 +5,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONString;
 import org.jsoup.Jsoup;
 
 import weka.clusterers.SimpleKMeans;
-import weka.core.Attribute;
-import weka.core.FastVector;
-import weka.core.Instance;
-import weka.core.Instances;
+import weka.core.*;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.ConverterUtils.DataSource;
 
@@ -83,7 +79,6 @@ public class ClusterFileUtil {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//System.out.println(data);
 		
 		ArffSaver saver = new ArffSaver();
 		saver.setInstances(data);
@@ -121,9 +116,14 @@ public class ClusterFileUtil {
         try {
         	data = source.getDataSet();
             filter.setInputFormat(data);
-            // -stemmer weka.core.stemmers.SnowballStemmer
-            if (process) {
-            	filter.setOptions(weka.core.Utils.splitOptions("-C -T -N -I 500 -tokenizer weka.core.tokenizers.WordTokenizer"));
+
+			if (process) {
+				filter.setUseStoplist(true);
+				filter.setStopwords(new File(ClusterFileUtil.class.getResource("/com/irsearch/commercesearch/config/clusterStopWords").toURI()));
+				filter.setOutputWordCounts(true);
+				filter.setIDFTransform(true);
+				filter.setLowerCaseTokens(true);
+				filter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NONE, StringToWordVector.TAGS_FILTER));
             	data = Filter.useFilter(data, filter);
             }
         } catch (Exception e) {
