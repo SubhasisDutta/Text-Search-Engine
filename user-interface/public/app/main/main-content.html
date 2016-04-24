@@ -92,6 +92,7 @@
                 </md-list>
             </md-tab>
             <md-tab label="Query Expansion">
+                <h4>Expanded Query : {{searchQueryExpansionSearchResults.expandedQuery}} </h4>
                 <p>Top 50 from about {{searchQueryExpansionSearchResults.resultCount}} results ( {{searchQueryExpansionSearchResults.executionTime/1000}} Seconds)</p>
                 <md-list>
                     <md-list-item ng-repeat="item in searchQueryExpansionSearchResults.results" class="noright">
