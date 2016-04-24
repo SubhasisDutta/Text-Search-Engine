@@ -28,9 +28,9 @@ public class JSONParser {
 			while((line = br.readLine()) != null){
 				try {
 					JSONObject json = new JSONObject(line);
-					String url = json.getJSONObject("Data").getString("Url");
-					String body = json.getJSONObject("Data").getString("Body");
-					JSONObject obj = new JSONObject(line).getJSONObject("Data");
+					String url = json.getString("Url");
+					String body = json.getString("Body");
+					JSONObject obj = new JSONObject(line);
 			        String title = Jsoup.parse(obj.getString("Body")).title();
 					res.setUrl(url);
 					res.setTitle(title);
