@@ -19,7 +19,7 @@ public class JSONParser {
 
 	public static Map<String, SearchEntity> docMap = new HashMap<String, SearchEntity>();
 	
-	public String readJSON(File f, InputStream inputStream) {
+	public String readJSON(String filePath, InputStream inputStream) {
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 		String line;
@@ -30,13 +30,12 @@ public class JSONParser {
 					JSONObject json = new JSONObject(line);
 					String url = json.getJSONObject("Data").getString("Url");
 					String body = json.getJSONObject("Data").getString("Body");
-					// TO - DO title get from crawling
 					JSONObject obj = new JSONObject(line).getJSONObject("Data");
 			        String title = Jsoup.parse(obj.getString("Body")).title();
 					res.setUrl(url);
 					res.setTitle(title);
 					res.setDescription(body);
-					docMap.put(f.getAbsolutePath(), res);
+					docMap.put(filePath, res);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}

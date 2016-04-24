@@ -58,13 +58,13 @@ public class IndexFiles {
 	    IndexWriter writer = new IndexWriter(dir, iwc);
 	    Path docDir = Paths.get(inputDocumentDirectoryPath);
 	    File files = new File(inputDocumentDirectoryPath);
-		JSONParser json = new JSONParser();
-		for(File f : files.listFiles()){
+//		JSONParser json = new JSONParser();
+//		for(File f : files.listFiles()){
 //		    Parse the JSON object in the file to get the URL and the contents
-			Path p = Paths.get(f.getAbsolutePath());
-			InputStream is = Files.newInputStream(p);
-			json.readJSON(f,is);
-		}
+//			Path p = Paths.get(f.getAbsolutePath());
+//			InputStream is = Files.newInputStream(p);
+//			json.readJSON(f,is);
+//		}
 	    indexDocs(writer, docDir);
 	    writer.close();
 	}
@@ -86,8 +86,7 @@ public class IndexFiles {
 		  /** Indexes a single document */
 		  public static void indexDoc(IndexWriter writer, Path file, long lastModified){
 
-		    try{
-		    	InputStream stream = Files.newInputStream(file);
+			  try (InputStream stream = Files.newInputStream(file)) {
 		      // make a new, empty document
 		      Document doc = new Document();
 		      

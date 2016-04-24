@@ -1,5 +1,8 @@
 package com.irsearch.commercesearch.service.queryretrival;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,23 +31,25 @@ public class Searcher {
 	public static List<SearchEntity> finalExpList = new ArrayList<SearchEntity>();
 	
 		
-	public static void searchFiles(String srchQuery) throws IOException, ParseException, JSONException{
+	public List<SearchEntity> searchFiles(String srchQuery) throws IOException, ParseException, JSONException{
 		finalList = searchIndex(srchQuery);
 	    System.out.println(srchQuery);
 	    System.out.println(finalList.toString());
+	    return finalList;
 	}
 
-	public void searchExpandedQuery(String srchQuery) throws ParseException, IOException, JSONException{
+	public List<SearchEntity> searchExpandedQuery(String srchQuery) throws ParseException, IOException, JSONException{
 		QueryExpansion qe = new QueryExpansion();
 		String expandedQuery = qe.expandQuery(srchQuery, docContent(finalList));
 		finalExpList = searchIndex(expandedQuery);
 	    System.out.println(expandedQuery);
 	    System.out.println(finalExpList.toString());
+	    return finalExpList;
 	}
 	
 	public static List<SearchEntity> searchIndex(String srchQuery) throws ParseException, IOException, JSONException{
 		List<SearchEntity> tempList = new ArrayList<SearchEntity>();
-		//JSONParser json = new JSONParser();
+		JSONParser json = new JSONParser();
 		String field = "contents";
 		IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(indexDirectoryPath)));
 		IndexSearcher searcher = new IndexSearcher(reader);
@@ -58,8 +63,12 @@ public class Searcher {
 	    	System.out.println("No matching documents");
 	    }
 	    for(int i = 0; i < sd.length; i++){
-	    	Document doc = searcher.doc(sd[i].doc);
-	    	SearchEntity data = JSONParser.docMap.get(doc.get("path"));
+	    	Document doc1 = searcher.doc(sd[i].doc);
+	    	String filePath = doc1.get("path");
+	    	Path p = Paths.get(filePath);
+			InputStream is = Files.newInputStream(p);
+			json.readJSON(filePath, is);
+	    	SearchEntity data = JSONParser.docMap.get(filePath);
 	    	System.out.println(data.getUrl());
 	    	tempList.add(data);
 	    }
@@ -80,7 +89,9 @@ public class Searcher {
 		return tempList;
 	}
 
-	private String optimiseQuery(String searchQuery) {		
+	private String optimiseQuery(String srchQuery) {
+		
+		String searchQuery = srchQuery.replaceAll("[$&+,:;=?@#|'<>.-^*()%!]", "");
 		List<String> q = new ArrayList<String>();
 		List<String> finalList = new ArrayList<String>();
 		q = Arrays.asList(searchQuery.split(" "));
