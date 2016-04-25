@@ -16,8 +16,15 @@ Steps to Run the System:
 		Change INDEX_DIRECTORY_PATH and 
 		inputDocumentDirectoryPath
 	b.	Run the file IndexFiles.java to generate the index. 
-4.	Generate the Cluster – Wayatt please write this steps
-
+4.	Generate the Cluster
+    a.  In file \com\irsearch\commercesearch\init\Clustering.java
+        Change the variables describing classpaths to point toward where each data file is saved
+            If no files exist, there should point to where they will be saved.
+        Update boolean values to set whether data needs to be reprocessed or loaded from files
+        Run Clustering.java with loadData() called in main
+        Wait
+        New model files will be generated for the kMeans and 4 agglomerative models.
+        Additional kMeans files are created to support the search engine application.
 
 5.	Run the HTTP Web Server  
 	a.	Run the com\irsearch\commercesearch\Main.java
