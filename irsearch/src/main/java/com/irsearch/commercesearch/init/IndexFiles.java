@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import com.irsearch.commercesearch.config.SearchConstants;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -29,11 +30,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.json.JSONException;
 
 public class IndexFiles {
-	// TODO:provide the absolute path to where to where the index will be stored
-	public static final String INDEX_DIRECTORY_PATH = "/Users/Matthew_Bachelder/text-search/irsearch/IndexData/Index";
-//	public static final String inputDocumentDirectoryPath = breakUpPage.OUTPUT_SEPERATE_DATA_FILES;
-	public static final String inputDocumentDirectoryPath = "/Users/Matthew_Bachelder/Documents/Development/QE/breakup_pages";
-	
+
 	/**
 	 * Build the index .
 	 * @param args
@@ -49,7 +46,7 @@ public class IndexFiles {
 	
 	public void indexer() throws IOException, ParseException, JSONException{
 		
-		Directory dir = FSDirectory.open(Paths.get(INDEX_DIRECTORY_PATH));
+		Directory dir = FSDirectory.open(Paths.get(SearchConstants.INDEX_DIRECTORY_PATH));
 	    for(String f : dir.listAll()){
 	    	dir.deleteFile(f);
 	    }
@@ -57,8 +54,8 @@ public class IndexFiles {
 	    IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 	    iwc.setOpenMode(OpenMode.CREATE);
 	    IndexWriter writer = new IndexWriter(dir, iwc);
-	    Path docDir = Paths.get(inputDocumentDirectoryPath);
-	    File files = new File(inputDocumentDirectoryPath);
+	    Path docDir = Paths.get(SearchConstants.inputDocumentDirectoryPath);
+	    File files = new File(SearchConstants.inputDocumentDirectoryPath);
 //		JSONParser json = new JSONParser();
 //		for(File f : files.listFiles()){
 //		    Parse the JSON object in the file to get the URL and the contents

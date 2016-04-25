@@ -6,16 +6,13 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.irsearch.commercesearch.config.SearchConstants;
 import org.glassfish.grizzly.nio.tmpselectors.TemporarySelectorIO;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 
 public class breakUpPage {
 	
-	//TODO: Change this location to the folder to the one that contains all .dat files provided by Crawling
-	public static final String INPUT_DAT_FOLDER = "/Users/wyatt.chastain/Dropbox/Code/workspace/CS6322 Group Project/Crawler/";
-	// TODO:provide the absolute path to where to store the data files
-	public static final String OUTPUT_SEPERATE_DATA_FILES = "/Users/wyatt.chastain/Dropbox/Code/workspace/CS6322 Group Project/Crawler/";
 
 	public static Set<String> tempSet = new HashSet<String>();
 
@@ -35,7 +32,7 @@ public class breakUpPage {
 		         if(tempSet.add(title)){
 			         obj.put("TITLE", title);
 
-			         PrintWriter out = new PrintWriter(OUTPUT_SEPERATE_DATA_FILES+String.format("%06d.data", counter));
+			         PrintWriter out = new PrintWriter(SearchConstants.OUTPUT_SEPERATE_DATA_FILES+String.format("%06d.data", counter));
 			         out.write(obj.toString());
 			         out.close();
 			         counter++;
@@ -51,7 +48,7 @@ public class breakUpPage {
 	}
 	
 	public static void main(String[] args){		 
-		File files = new File(INPUT_DAT_FOLDER);
+		File files = new File(SearchConstants.INPUT_DAT_FOLDER);
 		int i = 0;
 		for(File f : files.listFiles()){
 			System.out.println("Starting " + f.getAbsolutePath());

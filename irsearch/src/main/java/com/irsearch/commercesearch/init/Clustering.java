@@ -20,10 +20,6 @@ import weka.clusterers.HierarchicalClusterer;
 import weka.clusterers.SimpleKMeans;
 
 public class Clustering {
-	//TODO:change to proper location
-	public static String DATA_FILE = "./current.arff";
-	//TODO:change to proper location
-	public static final String WEB_PAGES = "./somepages.dat";
 
 	public static void main(String[] args) throws Throwable {
 		//loadData();

@@ -17,7 +17,6 @@ import com.irsearch.commercesearch.service.queryretrival.Searcher;
 
 public class SearchDAO implements iSearchDAO {
 
-
 	public final static Cluster cluster = new Cluster();
 
 	public final static HashMap<String, Double[]> clusterAssignments =
