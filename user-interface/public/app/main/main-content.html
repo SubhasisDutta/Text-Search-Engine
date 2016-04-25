@@ -72,7 +72,19 @@
                 </md-list>
             </md-tab>
             <md-tab label="Clustering">
-                <p>Top 50 from about {{searchClusterSearchResults.resultCount}} results ( {{searchClusterSearchResults.executionTime/1000}} Seconds)</p>
+                <p> {{searchClusterSearchResults.resultCount}} results ( {{searchClusterSearchResults.executionTime/1000}} Seconds)</p>
+                <md-list>
+                    <md-list-item ng-repeat="item in searchClusterSearchResults.clusters" class="noright">
+                        <md-card md-theme="{{ showDarkTheme ? 'dark-blue' : 'default' }}" md-theme-watch style="width: 100%;">
+                            <md-card-title >
+                                <md-card-title-text>
+                                    <span class="md-headline"><a href="{{item.url}}" target="_blank">{{item.title}}</a></span>
+                                    <span class="md-subhead">{{item.title}}  {{item.size}}  {{item.clusterNo}}</span>
+                                </md-card-title-text>
+                            </md-card-title>
+                        </md-card>
+                    </md-list-item>
+                </md-list>
                 <md-list>
                     <md-list-item ng-repeat="item in searchClusterSearchResults.results" class="noright">
                         <md-card md-theme="{{ showDarkTheme ? 'dark-blue' : 'default' }}" md-theme-watch style="width: 100%;">
