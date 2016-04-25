@@ -29,11 +29,11 @@ import com.irsearch.commercesearch.model.SearchResults;
 
 public class Searcher {
 
-	public final static String indexDirectoryPath = "/Users/Matthew_Bachelder/text-search/irsearch/IndexData/Index";
+	public final static String indexDirectoryPath = "/Users/wyatt.chastain/Code/UTD/CS6322/text-search/IndexData/Index";
 	public static List<SearchEntity> finalList = new ArrayList<SearchEntity>();
 	public static List<SearchEntity> finalExpList = new ArrayList<SearchEntity>();
 	public static int resultCount;
-		
+
 	public SearchResults searchFiles(String srchQuery) throws IOException, ParseException, JSONException{
 		finalList = searchIndex(srchQuery);
 	    System.out.println(srchQuery);

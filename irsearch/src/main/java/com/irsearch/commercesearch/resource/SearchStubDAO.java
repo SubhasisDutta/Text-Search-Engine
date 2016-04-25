@@ -66,7 +66,7 @@ public class SearchStubDAO implements iSearchDAO{
 		long startTime = Calendar.getInstance().getTimeInMillis();
 		SearchClusterResults results = new SearchClusterResults();
 		
-		//results.setInitialQuery(query);		
+		//results.setInitialQuery(query);
 		
 		List<SearchEntity> entity = new ArrayList<SearchEntity>();
 		for(int i=0;i<50;i++){
@@ -85,7 +85,7 @@ public class SearchStubDAO implements iSearchDAO{
 		
 		List<ClusterEntity> clusters = new ArrayList<ClusterEntity>();
 		for(int i=0; i< 5 ;i++){
-			ClusterEntity c = new ClusterEntity();
+			ClusterEntity c = new ClusterEntity(i+1);
 			c.setClusterNo(i+1);
 			Random rand = new Random();
 			int randomNum = rand.nextInt((50 - 2) + 1) + 2;

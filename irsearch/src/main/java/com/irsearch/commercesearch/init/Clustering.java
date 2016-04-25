@@ -10,6 +10,7 @@ import weka.core.EuclideanDistance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -24,18 +25,23 @@ public class Clustering {
 	//TODO:change to proper location
 	public static final String WEB_PAGES = "./somepages.dat";
 
-	public static void main(String[] args) {
-//		loadData();
+	public static void main(String[] args) throws Throwable {
+		//loadData();
 		Cluster cluster = new Cluster();
+		try {
 
-		cluster.setBestDocuments("./bestDocuments");
-		cluster.setClusterAssignments("./clusterAssignments");
-		cluster.setClusterTitles("./clusterTitles");
+			cluster.setBestDocuments("/Users/wyatt.chastain/Code/UTD/CS6322/text-search/irsearch/src/main/java/com/irsearch/commercesearch/config/bestDocuments");
+			cluster.setClusterAssignments("/Users/wyatt.chastain/Code/UTD/CS6322/text-search/irsearch/src/main/java/com/irsearch/commercesearch/config/clusterAssignments");
+			cluster.setClusterTitles("/Users/wyatt.chastain/Code/UTD/CS6322/text-search/irsearch/src/main/java/com/irsearch/commercesearch/config/clusterTitles");
 
-		cluster.printClusterAssignments();
+			//cluster.generateGraphJSONAll();
 
-		cluster.printClusterTitles();
-
+			cluster.printBestDocuments();
+//			cluster.printClusterAssignments();
+			//cluster.printClusterTitles();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 //		Vector<String> testPages = new Vector<String>();
 //		testPages.add("http://www.target.com/p/convenience-concepts-northfield-wall-console-table/-/A-10974416");
 //		testPages.add("http://www.target.com/p/threshold-parsons-coffee-table/-/A-16982954");
@@ -58,10 +64,10 @@ public class Clustering {
 	public static void loadData() throws Throwable {
 
 		boolean PARSE_CRAWLER_DATA = false;
-		boolean LOAD_INST_FROM_FILE = true;
+		boolean LOAD_INST_FROM_FILE = false;
 		boolean LOAD_MODELS_FROM_FILES = false;
 
-		String CRAWLER_DIRECTORY = "./Crawler";
+		String CRAWLER_DIRECTORY = "./Webpages";
 		String CRAWLER_ARFF = "./Crawler.arff";
 
 		String MODEL_FILENAME_KMEANS = "./kMeans.model";
@@ -73,6 +79,8 @@ public class Clustering {
 		String MODEL_FILENAME_HIER_SINGLE = "./hier_single.model";
 		String MODEL_FILENAME_HIER_CENTROID = "./hier_centroid.model";
 		String MODEL_FILENAME_HIER_NEIGHBOR = "./hier_neighbor.model";
+
+		String STOP_WORDS_FILE = "/Users/wyatt.chastain/Code/UTD/CS6322/text-search/irsearch/src/main/java/com/irsearch/commercesearch/config/clusterStopWords";
 
 		String INSTANCES_FILE = "./instances.data";
 
