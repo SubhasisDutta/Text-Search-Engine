@@ -106,17 +106,20 @@ public class ClusterFileUtil {
         StringToWordVector filter = new StringToWordVector();
 
         try {
+			System.out.println("Loading data");
         	data = source.getDataSet();
             filter.setInputFormat(data);
 
 			if (process) {
+				System.out.println("Processing data");
 				filter.setUseStoplist(true);
-				filter.setStopwords(new File(ClusterFileUtil.class.getResource("/com/irsearch/commercesearch/config/clusterStopWords").toURI()));
+				filter.setStopwords(new File("/Users/wyatt.chastain/Code/UTD/CS6322/text-search/irsearch/src/main/java/com/irsearch/commercesearch/config/clusterStopWords"));
 				filter.setOutputWordCounts(true);
 				filter.setIDFTransform(true);
 				filter.setLowerCaseTokens(true);
-				filter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NONE, StringToWordVector.TAGS_FILTER));
+				filter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NORMALIZE_ALL, StringToWordVector.TAGS_FILTER));
             	data = Filter.useFilter(data, filter);
+				System.out.println("Done filtering");
             }
         } catch (Exception e) {
         	e.printStackTrace();

@@ -30,7 +30,7 @@ import org.json.JSONException;
 
 public class IndexFiles {
 	// TODO:provide the absolute path to where to where the index will be stored
-	public static final String INDEX_DIRECTORY_PATH = "/Users/Matthew_Bachelder/text-search/irsearch/IndexData/Index";	
+	public static final String INDEX_DIRECTORY_PATH = "/Users/Matthew_Bachelder/text-search/irsearch/IndexData/Index";
 //	public static final String inputDocumentDirectoryPath = breakUpPage.OUTPUT_SEPERATE_DATA_FILES;
 	public static final String inputDocumentDirectoryPath = "/Users/Matthew_Bachelder/Documents/Development/QE/breakup_pages";
 	
@@ -116,6 +116,7 @@ public class IndexFiles {
 		      
 		      if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
 		        // New index, so we just add the document (no old document can be there):
+		        //System.out.println("adding " + file);
 		        writer.addDocument(doc);
 		      } else {
 		        // Existing index (an old copy of this document may have been indexed) so 

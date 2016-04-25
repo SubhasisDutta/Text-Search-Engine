@@ -12,7 +12,14 @@ public class ClusterEntity {
 		this.title = "";
 		this.size = 0;
 	}
-	
+
+
+	public ClusterEntity(int clusterNo){
+		this.clusterNo = clusterNo;
+		this.title = "";
+		this.size = 0;
+	}
+
 	public ClusterEntity(int clusterNo, String title, int size) {
 		this.clusterNo = clusterNo;
 		this.title = title;
@@ -37,13 +44,5 @@ public class ClusterEntity {
 	public void setClusterNo(int clusterNo) {
 		this.clusterNo = clusterNo;
 	}
-	
-	//TODO: Wyatt add the attributes u think is relevant
-
-	
-	
-	
-	
-	
 	
 }

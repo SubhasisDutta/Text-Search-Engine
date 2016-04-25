@@ -7,6 +7,7 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import com.irsearch.commercesearch.resource.SearchStubDAO;
 import com.irsearch.commercesearch.resource.SearchDAO;
 import com.irsearch.commercesearch.resource.iSearchDAO;
 
