@@ -18,6 +18,7 @@ import com.irsearch.commercesearch.model.SearchEntity;
 public class JSONParser {
 
 	public static Map<String, SearchEntity> docMap = new HashMap<String, SearchEntity>();
+	public static Map<String, SearchEntity> clusterMap = new HashMap<String, SearchEntity>();
 	
 	public String readJSON(String filePath, InputStream inputStream) {
 		
@@ -35,6 +36,7 @@ public class JSONParser {
 					res.setTitle(title);
 					res.setDescription(body);
 					docMap.put(filePath, res);
+					clusterMap.put(url, res);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
