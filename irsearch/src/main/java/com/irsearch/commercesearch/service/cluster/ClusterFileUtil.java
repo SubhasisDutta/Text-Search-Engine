@@ -11,7 +11,6 @@ import weka.clusterers.SimpleKMeans;
 import weka.core.*;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.ConverterUtils.DataSource;
-import weka.core.stopwords.*;
 import java.io.*;
 import java.util.*;
 
