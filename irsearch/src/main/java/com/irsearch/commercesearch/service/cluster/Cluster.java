@@ -1,5 +1,6 @@
 package com.irsearch.commercesearch.service.cluster;
 
+import com.irsearch.commercesearch.init.JSONParser;
 import com.irsearch.commercesearch.model.SearchClusterResults;
 
 import com.irsearch.commercesearch.model.SearchEntity;
@@ -11,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.util.*;
 
 import com.irsearch.commercesearch.model.ClusterEntity;
+import com.irsearch.commercesearch.service.queryretrival.Searcher;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -167,7 +169,16 @@ public class Cluster {
 
         for (Map.Entry<String, Double> entry : newRankings.entrySet()) {
             // Ram - need to do lookup here
-            rankedResults.put(entry.getValue(), new SearchEntity(entry.getKey(), entry.getValue().toString(), ""));
+            if (JSONParser.clusterMap.containsKey(entry.getKey())) {
+                rankedResults.put(entry.getValue(), new SearchEntity(entry.getKey(),
+                        JSONParser.clusterMap.get(entry.getKey()).getTitle(),
+                        JSONParser.clusterMap.get(entry.getKey()).getDescription()));
+            } else {
+//                List<SearchEntity> seL = Searcher.searchIndexByURL(entry.getKey());
+//                if (seL.size() > 0) {
+//                    rankedResults.put(entry.getValue(), seL.get(0));
+//                }
+            }
         }
 
         List<SearchEntity> finalResults = new ArrayList<>(rankedResults.values());
@@ -220,7 +231,34 @@ public class Cluster {
 
         ClusterFileUtil.saveModel("testingJSON.json", jsonArray.toString());
         System.out.println(jsonArray.toString());
+    }
 
+    public Vector<String> generateClusterQueries() {
+        int queriesToGenerate = 500;
+        int queryLenth = 3;
+        Vector<String> queries = new Vector<String>();
+        Vector<String> titleWords = new Vector<>();
+
+        for (Map.Entry<Integer, String> entry: clusterTitles.entrySet()) {
+            titleWords.addAll(Arrays.asList(entry.getValue().split(" ")));
+        }
+
+        HashSet h = new HashSet(titleWords);
+        titleWords.clear();
+        titleWords.addAll(h);
+
+        Collections.sort(titleWords);
+
+        for (int i = 0; i < titleWords.size(); i++) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(titleWords.get(i));
+            sb.append(" ");
+            sb.append(titleWords.get((int) (Math.random() * titleWords.size())));
+            sb.append(" ");
+            sb.append(titleWords.get((int) (Math.random() * titleWords.size())));
+            queries.add(sb.toString());
+        }
+        return queries;
     }
 
 

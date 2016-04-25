@@ -30,9 +30,17 @@ public class Clustering {
 			cluster.setClusterAssignments("/Users/wyatt.chastain/Code/UTD/CS6322/text-search/irsearch/src/main/java/com/irsearch/commercesearch/config/clusterAssignments");
 			cluster.setClusterTitles("/Users/wyatt.chastain/Code/UTD/CS6322/text-search/irsearch/src/main/java/com/irsearch/commercesearch/config/clusterTitles");
 
+			Vector<String> queries = cluster.generateClusterQueries();
+
+			int i = 1;
+			for (String query : queries) {
+				System.out.println(i + ": " + query);
+				i++;
+			}
+
 			//cluster.generateGraphJSONAll();
 
-			cluster.printBestDocuments();
+//			cluster.printBestDocuments();
 //			cluster.printClusterAssignments();
 			//cluster.printClusterTitles();
 		} catch (Exception e) {

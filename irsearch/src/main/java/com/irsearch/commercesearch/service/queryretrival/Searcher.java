@@ -56,7 +56,7 @@ public class Searcher {
 	    ser.setResults(finalExpList);
 	    return ser;
 	}
-	
+
 	public static List<SearchEntity> searchIndex(String srchQuery) throws ParseException, IOException, JSONException{
 		List<SearchEntity> tempList = new ArrayList<SearchEntity>();
 		JSONParser json = new JSONParser();

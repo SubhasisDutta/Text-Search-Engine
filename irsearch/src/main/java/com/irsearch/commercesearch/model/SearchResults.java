@@ -7,10 +7,7 @@ public class SearchResults {
 	private List<SearchEntity> results;
 	private long executionTime;
 	private String initialQuery;
-	
-	
-	
-	
+
 	public String getInitialQuery() {
 		return initialQuery;
 	}
