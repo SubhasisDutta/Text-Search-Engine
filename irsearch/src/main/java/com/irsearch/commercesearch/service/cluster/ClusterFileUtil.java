@@ -11,7 +11,7 @@ import weka.clusterers.SimpleKMeans;
 import weka.core.*;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.ConverterUtils.DataSource;
-
+import weka.core.stopwords.*;
 import java.io.*;
 import java.util.*;
 
@@ -43,7 +43,9 @@ public class ClusterFileUtil {
 				System.out.println(file.getName() + " to arff");
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String line;
-
+				if (file.getName().equalsIgnoreCase(".DS_Store")) {
+					continue;
+				}
 				while ((line = br.readLine()) != null) {
 					JSONObject obj = new JSONObject(line).getJSONObject("Data");
 					//System.out.println(Jsoup.parse(obj.getString("Body")).title());
@@ -101,61 +103,67 @@ public class ClusterFileUtil {
 		return null;
 	}
 
-    public static Instances getData(DataSource source, boolean process) {
-        Instances data = null;
-        StringToWordVector filter = new StringToWordVector();
+	public static Instances getData(DataSource source, boolean process) {
+		Instances data = null;
+		Instances outputInstances = null;
+		StringToWordVector filter = new StringToWordVector();
 
-        try {
+		Stopwords stopwords = new Stopwords();
+
+		try {
 			System.out.println("Loading data");
-        	data = source.getDataSet();
-            filter.setInputFormat(data);
+			data = source.getDataSet();
+			filter.setInputFormat(data);
 
-			if (process) {
-				System.out.println("Processing data");
-				filter.setUseStoplist(true);
-				filter.setStopwords(new File("/Users/wyatt.chastain/Code/UTD/CS6322/text-search/irsearch/src/main/java/com/irsearch/commercesearch/config/clusterStopWords"));
-				filter.setOutputWordCounts(true);
-				filter.setIDFTransform(true);
-				filter.setLowerCaseTokens(true);
-				filter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NORMALIZE_ALL, StringToWordVector.TAGS_FILTER));
-            	data = Filter.useFilter(data, filter);
-				System.out.println("Done filtering");
-            }
-        } catch (Exception e) {
-        	e.printStackTrace();
-        }
-        return data;
-    }
+			File f = new File("/Users/wyatt.chastain/Code/UTD/CS6322/text-search/irsearch/src/main/java/com/irsearch/commercesearch/config/clusterStopWords");
+			if (f.exists()) {
+				System.out.println("true");
+			}
 
-    public static Object tryToLoadModel(String modelFileName) {
-        File f = new File(modelFileName);
-        Object model = null;
+			System.out.println("Processing data");
+			filter.setStopwords(new File("/Users/wyatt.chastain/Code/UTD/CS6322/text-search/irsearch/src/main/java/com/irsearch/commercesearch/config/clusterStopWords"));
+//			filter.setOutputWordCounts(true);
+//			filter.setIDFTransform(true);
+//			filter.setLowerCaseTokens(true);
+//			filter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NORMALIZE_ALL, StringToWordVector.TAGS_FILTER));
+			outputInstances = Filter.useFilter(data, filter);
+			System.out.println("Done filtering");
 
-        if (f.exists()) {
-            try {
-                InputStream is = new FileInputStream(modelFileName);
-                ObjectInputStream objectInputStream = new ObjectInputStream(is);
-                model = objectInputStream.readObject();
-                objectInputStream.close();
-            } catch(Exception e) {
-                // don't care; will recreate the model.
-            }
-        }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return outputInstances;
+	}
 
-        return model;
-    }
+	public static Object tryToLoadModel(String modelFileName) {
+		File f = new File(modelFileName);
+		Object model = null;
 
-    public static void saveModel(String modelFileName, Object o) {
-        try {
-            OutputStream os = new FileOutputStream(modelFileName);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(os);
-            objectOutputStream.writeObject(o);
-            objectOutputStream.close();
-        } catch(Exception e) {
-            System.out.println("Error saving file.");
-            //e.printStackTrace();
-        }
-    }
+		if (f.exists()) {
+			try {
+				InputStream is = new FileInputStream(modelFileName);
+				ObjectInputStream objectInputStream = new ObjectInputStream(is);
+				model = objectInputStream.readObject();
+				objectInputStream.close();
+			} catch (Exception e) {
+				// don't care; will recreate the model.
+			}
+		}
+
+		return model;
+	}
+
+	public static void saveModel(String modelFileName, Object o) {
+		try {
+			OutputStream os = new FileOutputStream(modelFileName);
+			ObjectOutputStream objectOutputStream = new ObjectOutputStream(os);
+			objectOutputStream.writeObject(o);
+			objectOutputStream.close();
+		} catch (Exception e) {
+			System.out.println("Error saving file.");
+			//e.printStackTrace();
+		}
+	}
 
 
 	public static HashMap<Integer, String> getClusterTitles(SimpleKMeans kMeans, int titleLength) throws Throwable {
@@ -175,7 +183,7 @@ public class ClusterFileUtil {
 
 			int MAX = titleLength;
 			int COUNT = 0;
-			for(Map.Entry<Double,String> entry : importantAttributes.entrySet()) {
+			for (Map.Entry<Double, String> entry : importantAttributes.entrySet()) {
 				// @TODO manual approving of titles
 				sb.append(entry.getValue());
 
@@ -194,24 +202,24 @@ public class ClusterFileUtil {
 		return titles;
 	}
 
-    public static void produceJSON(SimpleKMeans kMeans, Vector<String> finalPages, TreeMap<Integer, Integer> clusterCounts) throws JSONException, Exception {
-    	JSONArray fileJSON = new JSONArray();
-    	JSONArray pagesArray = new JSONArray();
-    	JSONArray countsArray = new JSONArray();
-    	
-    	for (String page : finalPages) {
-    		// do a lookup for title and snippet here
-    		JSONObject jo = new JSONObject();
-    		jo.put("url", page);
-    		pagesArray.put(jo);
-    	}
-    	
-    	fileJSON.put(pagesArray);
+	public static void produceJSON(SimpleKMeans kMeans, Vector<String> finalPages, TreeMap<Integer, Integer> clusterCounts) throws JSONException, Exception {
+		JSONArray fileJSON = new JSONArray();
+		JSONArray pagesArray = new JSONArray();
+		JSONArray countsArray = new JSONArray();
+
+		for (String page : finalPages) {
+			// do a lookup for title and snippet here
+			JSONObject jo = new JSONObject();
+			jo.put("url", page);
+			pagesArray.put(jo);
+		}
+
+		fileJSON.put(pagesArray);
 
 		for (int i = 0; i < kMeans.numberOfClusters(); i++) {
 
 			if (!clusterCounts.containsKey(i)) continue;
-			
+
 			TreeMap<Double, String> importantAttributes = new TreeMap<Double, String>(Collections.reverseOrder());
 			for (int j = 0; j < kMeans.getClusterCentroids().numAttributes(); j++) {
 				String attributeName = kMeans.getClusterCentroids().attribute(j).name();
@@ -220,22 +228,22 @@ public class ClusterFileUtil {
 			}
 
 			StringBuilder sb = new StringBuilder();
-			
+
 			int MAX = 6;
 			int COUNT = 0;
-			for(Map.Entry<Double,String> entry : importantAttributes.entrySet()) {
+			for (Map.Entry<Double, String> entry : importantAttributes.entrySet()) {
 				// @TODO manual approving of titles
 				sb.append(entry.getValue());
-				
+
 				COUNT++;
-				
+
 				if (COUNT == MAX) {
 					break;
 				} else {
 					sb.append(" ");
 				}
 			}
-			
+
 			JSONObject jo = new JSONObject();
 			jo.put("Cluster", i);
 			jo.put("Title", sb.toString());
@@ -244,21 +252,21 @@ public class ClusterFileUtil {
 			countsArray.put(jo);
 			System.out.println("CLUSTER #" + i + " done.");
 		}
-    	
+
 		fileJSON.put(countsArray);
-		
-        try {
+
+		try {
 			FileWriter file = new FileWriter("./frontend.json");
-        	file.write(fileJSON.toString());
-        } catch (IOException e) {
+			file.write(fileJSON.toString());
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    }
-    
-    public static void produceJsonKMeansClusters(SimpleKMeans kMeans, String jsonFile, int titleCount) {
-    	JSONArray ja = new JSONArray();
-    	
+	}
+
+	public static void produceJsonKMeansClusters(SimpleKMeans kMeans, String jsonFile, int titleCount) {
+		JSONArray ja = new JSONArray();
+
 		try {
 			for (int i = 0; i < kMeans.numberOfClusters(); i++) {
 
@@ -270,22 +278,22 @@ public class ClusterFileUtil {
 				}
 
 				StringBuilder sb = new StringBuilder();
-				
+
 				int MAX = titleCount + 1;
 				int COUNT = 0;
-				for(Map.Entry<Double,String> entry : importantAttributes.entrySet()) {
+				for (Map.Entry<Double, String> entry : importantAttributes.entrySet()) {
 					// @TODO manual approving of titles
 					sb.append(entry.getValue());
-					
+
 					COUNT++;
-					
+
 					if (COUNT == MAX) {
 						break;
 					} else {
 						sb.append(" ");
 					}
 				}
-				
+
 				JSONObject jo = new JSONObject();
 				jo.put("Cluster", i);
 				jo.put("Title", sb.toString());
@@ -298,13 +306,13 @@ public class ClusterFileUtil {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
-        try {
+
+		try {
 			FileWriter file = new FileWriter(jsonFile);
-        	file.write(ja.toString());
-        } catch (IOException e) {
+			file.write(ja.toString());
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    }
+	}
 }

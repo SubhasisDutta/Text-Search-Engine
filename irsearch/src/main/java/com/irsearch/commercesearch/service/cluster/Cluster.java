@@ -5,10 +5,7 @@ import com.irsearch.commercesearch.model.SearchClusterResults;
 
 import com.irsearch.commercesearch.model.SearchEntity;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.util.*;
 
 import com.irsearch.commercesearch.model.ClusterEntity;
@@ -261,5 +258,30 @@ public class Cluster {
         return queries;
     }
 
+    public void updateClusterTitles(String saveModelFile) {
+        for (Map.Entry<Integer, String> entry: clusterTitles.entrySet()) {
+            boolean badTitle = true;
+            String newTitle = entry.getValue();
+            while (badTitle) {
+                try {
+                    System.out.println(entry.getValue());
+                    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                    String proposedTitle = br.readLine();
+                    String[] titleWords = proposedTitle.split(" ");
+                    for (String titleWord : titleWords) {
+                        if (!entry.getValue().contains(titleWord)) {
+                            continue;
+                        }
+                        newTitle = proposedTitle;
+                        badTitle = false;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            clusterTitles.put(entry.getKey(), newTitle);
+            ClusterFileUtil.saveModel(saveModelFile, clusterTitles);
+        }
 
+    }
 }
