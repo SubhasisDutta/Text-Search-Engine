@@ -30,9 +30,9 @@ import org.json.JSONException;
 
 public class IndexFiles {
 	// TODO:provide the absolute path to where to where the index will be stored
-	public static final String INDEX_DIRECTORY_PATH = "F:/eclipse/Workspace/LuceneDemoApplication/Index";	
+	public static final String INDEX_DIRECTORY_PATH = "/Users/Matthew_Bachelder/text-search/irsearch/IndexData/Index";	
 //	public static final String inputDocumentDirectoryPath = breakUpPage.OUTPUT_SEPERATE_DATA_FILES;
-	public static final String inputDocumentDirectoryPath = "F:/eclipse/Workspace/LuceneDemoApplication/Documents";
+	public static final String inputDocumentDirectoryPath = "/Users/Matthew_Bachelder/Documents/Development/QE/breakup_pages";
 	
 	/**
 	 * Build the index .

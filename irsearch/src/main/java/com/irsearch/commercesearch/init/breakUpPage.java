@@ -13,17 +13,19 @@ import org.jsoup.Jsoup;
 public class breakUpPage {
 	
 	//TODO: Change this location to the folder to the one that contains all .dat files provided by Crawling
-	public static final String INPUT_DAT_FOLDER = "crawled_data"; 
+	public static final String INPUT_DAT_FOLDER = "/Users/Matthew_Bachelder/Documents/Development/QE/crawledpages"; 
 	// TODO:provide the absolute path to where to store the data files
-	public static final String OUTPUT_SEPERATE_DATA_FILES = "IndexData/Input_Pages/";
+	public static final String OUTPUT_SEPERATE_DATA_FILES = "/Users/Matthew_Bachelder/Documents/Development/QE/breakup_pages/";
 	
 	public static Set<String> tempSet = new HashSet<String>();
+	
+	public static long counter =0;
 	
 	public static void breakOutFiles(String crawlerFile) {
 		   try {
 		      BufferedReader br = new BufferedReader(new FileReader(crawlerFile));
 		      String line;
-		      int i = 0;
+		      //int i = 0;
 
 		      while ((line = br.readLine()) != null) {
 		         JSONObject obj = new JSONObject(line).getJSONObject("Data");
@@ -32,10 +34,10 @@ public class breakUpPage {
 		         if(tempSet.add(title)){
 			         obj.put("TITLE", title);
 
-			         PrintWriter out = new PrintWriter(OUTPUT_SEPERATE_DATA_FILES+String.format("%06d.data", i));
+			         PrintWriter out = new PrintWriter(OUTPUT_SEPERATE_DATA_FILES+String.format("%06d.data", counter));
 			         out.write(obj.toString());
 			         out.close();
-			         i++;
+			         counter++;
 		         }
 		      }
 		      br.close();

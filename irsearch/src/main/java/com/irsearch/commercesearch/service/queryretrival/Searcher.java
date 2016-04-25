@@ -29,7 +29,7 @@ import com.irsearch.commercesearch.model.SearchResults;
 
 public class Searcher {
 
-	public final static String indexDirectoryPath = "F:/eclipse/Workspace/LuceneDemoApplication/Index";
+	public final static String indexDirectoryPath = "/Users/Matthew_Bachelder/text-search/irsearch/IndexData/Index";
 	public static List<SearchEntity> finalList = new ArrayList<SearchEntity>();
 	public static List<SearchEntity> finalExpList = new ArrayList<SearchEntity>();
 	public static int resultCount;
