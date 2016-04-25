@@ -47,7 +47,7 @@ public class Searcher {
 
 	public SearchExpansionResults searchExpandedQuery(String srchQuery) throws ParseException, IOException, JSONException{
 		QueryExpansion qe = new QueryExpansion();
-		String expandedQuery = qe.getScalarClusterExpansion(srchQuery, docContent(finalList));
+		String expandedQuery = qe.getMetricClusterExpansion(srchQuery, docContent(finalList));
 		finalExpList = searchIndex(expandedQuery);
 	    SearchExpansionResults ser = new SearchExpansionResults();
 	    ser.setInitialQuery(srchQuery);

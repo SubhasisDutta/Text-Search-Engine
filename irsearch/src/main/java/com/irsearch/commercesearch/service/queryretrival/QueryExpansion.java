@@ -21,7 +21,7 @@ public class QueryExpansion {
 
     private void loadStopWords() {
         
-        
+    	stopWords.put("com",Integer.MIN_VALUE);
         stopWords.put("about",Integer.MIN_VALUE);
         stopWords.put("after",Integer.MIN_VALUE);
         stopWords.put("against",Integer.MIN_VALUE);
