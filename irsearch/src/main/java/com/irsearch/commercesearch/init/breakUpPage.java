@@ -3,7 +3,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.glassfish.grizzly.nio.tmpselectors.TemporarySelectorIO;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 
@@ -12,7 +15,9 @@ public class breakUpPage {
 	//TODO: Change this location to the folder to the one that contains all .dat files provided by Crawling
 	public static final String INPUT_DAT_FOLDER = "crawled_data"; 
 	// TODO:provide the absolute path to where to store the data files
-	public static final String OUTPUT_SEPERATE_DATA_FILES = "IndexData/Input_Pages/"; 
+	public static final String OUTPUT_SEPERATE_DATA_FILES = "IndexData/Input_Pages/";
+	
+	public static Set<String> tempSet = new HashSet<String>();
 	
 	public static void breakOutFiles(String crawlerFile) {
 		   try {
@@ -24,13 +29,14 @@ public class breakUpPage {
 		         JSONObject obj = new JSONObject(line).getJSONObject("Data");
 		         String title = Jsoup.parse(obj.getString("Body")).title();
 		         //JSONObject obj2 = new JSONObject(line);
+		         if(tempSet.add(title)){
+			         obj.put("TITLE", title);
 
-		         obj.put("TITLE", title);
-
-		         PrintWriter out = new PrintWriter(OUTPUT_SEPERATE_DATA_FILES+String.format("%06d.data", i));
-		         out.write(obj.toString());
-		         out.close();
-		         i++;
+			         PrintWriter out = new PrintWriter(OUTPUT_SEPERATE_DATA_FILES+String.format("%06d.data", i));
+			         out.write(obj.toString());
+			         out.close();
+			         i++;
+		         }
 		      }
 		      br.close();
 		      
