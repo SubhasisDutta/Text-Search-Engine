@@ -100,12 +100,12 @@ public class Cluster {
 
     public SearchClusterResults addResults(List<SearchEntity> results) {
 
-        List<ClusterEntity> clusterEntities = new ArrayList<>();
-        List<SearchEntity> searchEntities = new ArrayList<>();
+        List<ClusterEntity> clusterEntities = new ArrayList<ClusterEntity>();
+        List<SearchEntity> searchEntities = new ArrayList<SearchEntity>();
 
-        HashMap<Integer, Integer> clusterSize = new HashMap<>();
+        HashMap<Integer, Integer> clusterSize = new HashMap<Integer,Integer>();
 
-        HashMap<String, Double> newRankings = new HashMap<>();
+        HashMap<String, Double> newRankings = new HashMap<String,Double>();
 
         double currentRanking = 1.0;
         for (SearchEntity result : results) {
@@ -157,7 +157,7 @@ public class Cluster {
             clusterSize.put(currentCluster, 1);
         }
 
-        TreeMap<Double, SearchEntity> rankedResults = new TreeMap<>(Collections.reverseOrder());
+        TreeMap<Double, SearchEntity> rankedResults = new TreeMap<Double,SearchEntity>(Collections.reverseOrder());
 
         for (SearchEntity result : results) {
             rankedResults.put(newRankings.get(result.getUrl()), result);
@@ -178,7 +178,7 @@ public class Cluster {
             }
         }
 
-        List<SearchEntity> finalResults = new ArrayList<>(rankedResults.values());
+        List<SearchEntity> finalResults = new ArrayList<SearchEntity>(rankedResults.values());
 
         SearchClusterResults searchClusterResults = new SearchClusterResults();
 
@@ -234,7 +234,7 @@ public class Cluster {
         int queriesToGenerate = 500;
         int queryLenth = 3;
         Vector<String> queries = new Vector<String>();
-        Vector<String> titleWords = new Vector<>();
+        Vector<String> titleWords = new Vector<String>();
 
         for (Map.Entry<Integer, String> entry: clusterTitles.entrySet()) {
             titleWords.addAll(Arrays.asList(entry.getValue().split(" ")));
