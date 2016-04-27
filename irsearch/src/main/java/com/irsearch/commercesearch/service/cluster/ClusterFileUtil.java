@@ -46,7 +46,7 @@ public class ClusterFileUtil {
 					continue;
 				}
 				while ((line = br.readLine()) != null) {
-					JSONObject obj = new JSONObject(line).getJSONObject("Data");
+					JSONObject obj = new JSONObject(line);
 					//System.out.println(Jsoup.parse(obj.getString("Body")).title());
 					double[] vals = new double[3];
 					String body = Jsoup.parse(obj.getString("Body")).body()
@@ -121,17 +121,19 @@ public class ClusterFileUtil {
 
 			System.out.println("Processing data");
 			filter.setStopwords(new File("/Users/wyatt.chastain/Code/UTD/CS6322/text-search/irsearch/src/main/java/com/irsearch/commercesearch/config/clusterStopWords"));
-//			filter.setOutputWordCounts(true);
-//			filter.setIDFTransform(true);
-//			filter.setLowerCaseTokens(true);
-//			filter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NORMALIZE_ALL, StringToWordVector.TAGS_FILTER));
-			outputInstances = Filter.useFilter(data, filter);
+			if (process) {
+				filter.setOutputWordCounts(true);
+				filter.setIDFTransform(true);
+				filter.setLowerCaseTokens(true);
+				filter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NORMALIZE_ALL, StringToWordVector.TAGS_FILTER));
+				data = Filter.useFilter(data, filter);
+			}
 			System.out.println("Done filtering");
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return outputInstances;
+		return data;
 	}
 
 	public static Object tryToLoadModel(String modelFileName) {
