@@ -115,7 +115,7 @@ public class Searcher {
 					}
 				}
 				else{
-					sb.append(" " +words[i]);
+					 sb.append(" " +words[i]);
 				}
 			}
 		}
