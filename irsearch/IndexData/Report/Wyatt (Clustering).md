@@ -4,11 +4,11 @@ Adding this as an additional file to prevent overwriting someone else's changes 
 
     1. What you learned?
 
-        1. The overall flow of a search engine as well as the reason why Google employs so many people.  I also didn't realize the amount of irrelevant data you have to find a way to work around.  On pretty much every stage of the process, data was introduced that was just not needed for the search engine.  We had to find ways to slim down the amount of data to a manageable amount.  In addition, even weka, which is widely seen as a standard way to do data analysis and clustering, struggled with the 100k+ pages we had, causing me to dive into the weka documentation and find the settings that allowed us to trim the data down more.  By the end of this trial and error process, I had found ways to trim down the clustering data set to just what was needed to provide additional relevant results.
+        1. The overall flow of a search engine as well as the reason why Google employs so many people.  I also didn't realize the amount of irrelevant data you have to find a way to work around.  On pretty much every stage of the process, data was introduced that was just not needed for the search engine.  We had to find ways to cut the amount of data down to a manageable amount.  Data relevant for searching (such as sales information or site specific information (Target Redcard, etc.) was useful for indexing, but completely unneeded or even hurtful to creating useful clusters.  In addition, even weka, which is widely seen as a standard way to do data analysis and clustering, struggled with the 100k+ pages we had, causing me to dive into the weka documentation and find the settings that allowed us to trim the data down more.  By the end of this trial and error process, I had found ways to trim down the clustering data set to just what was needed to provide additional relevant results.
 
     2. What was your experience?
 
-        1. Lots of data flow experience.  Figuring out what was needed by whom and the best and most sensible way to get it to them.  In addition, we had to find ways to see everything whole picture because information not necessarily needed by one part may be important for others lated down the pipeline.
+        1. Lots of data flow experience.  Figuring out what was needed by whom and the best and most sensible way to get it to them.  In addition, we had to find ways to see everything whole picture because information not necessarily needed by one part may be important for others lated down the pipeline.  The amount of communication needed was more than other projects I've dealt with in an academic environment.
 
     3. What were difficulties you faced?
 
@@ -16,7 +16,7 @@ Adding this as an additional file to prevent overwriting someone else's changes 
 
     4. How did you resolve them?
 
-        1. By building custom data structures that only contained the needed data in an easy to parse format, we were able to get our results as quickly as possible.
+        1. By building custom data structures that only contained the needed data in an easy to parse format, we were able to get our results as quickly as possible.  In addition, we utilized as much "offline" processing as we could, creating these custom data structures before the application started or overnight so they could be used when one of us wanted to actually test the full application.
 
 5. Clustering
 
