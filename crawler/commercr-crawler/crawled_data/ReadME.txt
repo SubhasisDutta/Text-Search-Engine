@@ -1,1 +1,1 @@
-This folder contains crawled data.
+This folder contains code used for the crawler.

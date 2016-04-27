@@ -1,0 +1,7 @@
+nsqlookupd
+nsqd --lookupd-tcp-address=127.0.0.1:4160 -max-msg-size=10485760 -data-path=data/q
+nsqadmin --lookupd-http-address=127.0.0.1:4161
+nsq_to_file -gzip -topic="data" -channel="save" -nsqd-tcp-address=127.0.0.1:4150 -output-dir=/home/sbalhoff/output
+goreman start
+./download.sh
+crawl_watch -n=20 -urls=15000 -workers=12 -worker-queue=10000 -cmd=gen_queue.sh
