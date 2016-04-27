@@ -5,8 +5,8 @@ module.exports = {
   development: {    
     rootPath: rootPath,
     port: process.env.PORT || 3030,
-    google_search_key: 'AIzaSyDjsz5jJZTOj0jI5sL4UyJ462X0B0vQEk0',
-    google_search_cx:'015316648851022853627:d-2vcb0f5l4',
+    google_search_key: 'AIzaSyCq1hkDNgcwG2YLo1gtmBJgUROL94b5L1I',
+    google_search_cx:'017341476643384181453:sh3_hjw1xma',
     google_query_URL: 'https://www.googleapis.com/customsearch/v1?q=',
     query_result_max: 100,
     bing_account_key: 'hi5LIvAVghLrU2pq7b3VYYwcXt0H09uAcX49y8Ag1mo',
