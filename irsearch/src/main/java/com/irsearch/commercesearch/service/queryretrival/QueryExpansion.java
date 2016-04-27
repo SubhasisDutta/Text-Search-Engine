@@ -20,7 +20,11 @@ public class QueryExpansion {
     }
 
     private void loadStopWords() {
-        
+    	stopWords.put("redcard", Integer.MIN_VALUE);
+    	stopWords.put("walmart", Integer.MIN_VALUE);
+    	stopWords.put("target", Integer.MIN_VALUE);
+    	stopWords.put("save", Integer.MIN_VALUE);
+    	stopWords.put("skip",Integer.MIN_VALUE);
     	stopWords.put("com",Integer.MIN_VALUE);
         stopWords.put("about",Integer.MIN_VALUE);
         stopWords.put("after",Integer.MIN_VALUE);
@@ -137,7 +141,7 @@ public class QueryExpansion {
                 int i=0;
 	    	for(String key: sortedMap.keySet()){
                     
-	    		d[i] = tf(s,localStemmedVocab.get(key)) * idf(s,localStemmedVocab.get(key));
+	    		d[i] = tf(s,key) * idf(s,key);
                         if(d[i]!=d[i])//check if NaN
                             d[i]=0;
                         
@@ -477,6 +481,8 @@ public class QueryExpansion {
     
     
     public String getMetricClusterExpansion(String oldQuery, ArrayList<String> files){ //metric clusters
+    	
+    	System.out.println("!!!!!!!!!!!!!!!!!!!Starting Metric Query Expansion.......!!!!!!!!!!!!!!!!!!!!");
         String newQuery ="";
         int releventCollectionSize = files.size(); //|N|
         int localStemSize = 0; //|S|
@@ -577,6 +583,7 @@ public class QueryExpansion {
         }
         
         newQuery = getNewQueryTerms(newQueryTermRows,localStemmedVocab, oldQuery);
+        System.out.println("New Expanded Query: "+newQuery);
         return newQuery;
     }
 
@@ -738,11 +745,7 @@ public class QueryExpansion {
             int [] topTwoRows = new int[2];
             
             for(int i=0; i<localStemSize; i++){
-                if(i<2){
-                    topTwo[i]= associationMatrixCorrellations[i];
-                    topTwoRows[i] = i;
-                }
-                else{
+                
                     if(associationMatrixCorrellations[i]>topTwo[0]){
                         double temp = topTwo[0];
                         int tempRow = topTwoRows[0];
@@ -760,7 +763,7 @@ public class QueryExpansion {
                         }
                 }
             }
-            }
+            
             
             boolean[] inserted = new boolean[2];
             inserted[0] = false;

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 const char * http = "http://";
 const char * www = "www.";
@@ -15,13 +16,22 @@ const char * allowed_domains[] = {
     "homedepot.com"
 };
 
-const char * product_filter[] = {
-    "/p",
-    "/ip/",
-    "/p/",
-    "/w/",
-    "/p/"
-};
+std::vector<std::vector<std::string>> product_filter_whitelist;
+
+void init_filters()
+{
+	std::vector<std::string> target; target.push_back("/p/"); target.push_back("/c/");
+	std::vector<std::string> walmart; walmart.push_back("/ip/"); walmart.push_back("/browse/"); walmart.push_back("/cp/");
+	std::vector<std::string> dillards; dillards.push_back("/p/"); dillards.push_back("/c/");
+	std::vector<std::string> barnesandnoble; barnesandnoble.push_back("/w/");
+	std::vector<std::string> homedepot; homedepot.push_back("/p/");
+
+	product_filter_whitelist.push_back(target);
+	product_filter_whitelist.push_back(walmart);
+	product_filter_whitelist.push_back(dillards);
+	product_filter_whitelist.push_back(barnesandnoble);
+	product_filter_whitelist.push_back(homedepot);
+}
 
 void printline(std::string const & line)
 {
@@ -65,6 +75,8 @@ int valid_tld_idx(std::string const & line)
 
 int main()
 {
+	init_filters();
+
     std::string line;
 
     while (std::getline(std::cin, line))
@@ -78,10 +90,14 @@ int main()
             int tld_index = valid_tld_idx(line);
             if (tld_index >= 0)
             {
-                if (line.find(product_filter[tld_index]) != std::string::npos)
-                {
-                    printline(line);
-                }
+				for (const std::string & filter : product_filter_whitelist[tld_index])
+				{
+                	if (line.find(filter) != std::string::npos)
+                	{
+                   	 	printline(line);
+						break;
+                	}
+				}
             }
         }
     }
