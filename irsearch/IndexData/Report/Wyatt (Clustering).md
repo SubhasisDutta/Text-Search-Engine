@@ -40,8 +40,16 @@ Adding this as an additional file to prevent overwriting someone else's changes 
 
     h. 500 randomly generated query were used along with 25 manual queries.
 
-    i. See 5.e.
+    i. See 5.e.  The results obtained during testing were used to prune the data and improve the overall clustering during the next iteration.
 
     j. The random queries were used to test and 25 manual queries were based on what I think people would search for online.
 
-    k. TODO
+    k1: Search Query "Pants"; Introduced and moved ot 4th place in results the page http://www.target.com/s/pink+mossimo+pants
+    
+    k2: Red Paper: Introduced and moved to 6th in results http://www.target.com/s/paper+towel+holder+red
+    
+    k3: Lotion: Moved around results and added http://www.walmart.com/ip/Johnson-s-Honey-Apple-Baby-Lotion-Choose-Your-Size/14675929?action=product_interest&action_type=title&beacon_version=1.0.1&bucket_id=irsbucketdefault&category=&client_guid=18de1fbc-599f-4370-aa21-224715065393&config_id=2&customer_id_enc=&findingMethod=p13n&guid=4481ab97-4022-4e43-be97-d46d9558654e&item_id=14675929&parent_anchor_item_id=10294057&parent_item_id=10294057&placement_id=irs-2-m3&strategy=PWVUB&visitor_id= as the second result.
+    
+    k4: Apple: Moved electronic components up and added iPhone accessories such as http://www.walmart.com/ip/OtterBox-Symmetry-Case-for-Apple-iPhone-5-5S-with-Clearly-Protected-Vibrant-Screen-Protector-Candy-Pink/39746447?action=product_interest&action_type=title&beacon_version=1.0.1&bucket_id=irsbucketdefault&category=&client_guid=bf9d9c77-f580-4336-8eb0-fbd770f92b19&config_id=2&customer_id_enc=&findingMethod=p13n&guid=ae2a49ba-7c2e-43bd-9632-754b41f090c6&item_id=39746447&parent_anchor_item_id=38078636&parent_item_id=38078636&placement_id=irs-2-m3&strategy=PWVUB&visitor_id=
+    
+        k4 Note: the results from k3 (Apple Scented Lotion) was moved down.  This is consistent with the clustering I saw, which had Apple more as electronics than fruit.  This matches what I would expect to buy online.
