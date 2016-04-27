@@ -35,7 +35,7 @@ public class Searcher {
 	public static int resultCount;
 
 	public SearchResults searchFiles(String srchQuery) throws IOException, ParseException, JSONException{
-		finalList = searchIndex(srchQuery);
+		finalList = searchIndex(optimiseQuery(srchQuery));
 	    System.out.println(srchQuery);
 	    System.out.println(finalList.toString());
 	    SearchResults sr = new SearchResults();
@@ -99,41 +99,60 @@ public class Searcher {
 		return tempList;
 	}
 
-	private String optimiseQuery(String srchQuery) {
+	private static String optimiseQuery(String searchQuery) {
 		
-		String searchQuery = srchQuery.replaceAll("[$&+,:;=?@#|'<>.-^*()%!]", "");
-		List<String> q = new ArrayList<String>();
-		List<String> finalList = new ArrayList<String>();
-		q = Arrays.asList(searchQuery.split(" "));
-		//If first word is AND, OR or NOT, change it to lower case
-		if(q.size() != 0){
-			if(q.get(0).equals("AND") || q.get(0).equals("OR") || q.get(0).equals("NOT")){
-				finalList.add(q.get(0).toLowerCase());
-			}
-			else{
-				finalList.add(q.get(0));
-			}
-		}
-		if(q.size() > 1){
-			for(int i = 1; i < q.size(); i++){
-				if(q.get(i).equals("AND") || q.get(i).equals("OR") || q.get(i).equals("NOT")){
-					if(!q.get(i+1).equals("AND") && !q.get(i+1).equals("OR") && !q.get(i+1).equals("NOT")){
-						finalList.add(q.get(i));
+		String[] words = searchQuery.split(" ");
+		StringBuilder sb = new StringBuilder();
+		sb.append(words[0]);
+		if(words.length > 1){
+			for(int i = 1; i < words.length; i++){
+				if(!words[i-1].equals("AND") && !words[i-1].equals("OR") && !words[i-1].equals("NOT")){
+					if(!words[i].equals("AND") && !words[i].equals("OR") && !words[i].equals("NOT")){
+						sb.append(" " + "AND" + " " +words[i]);
+					}
+					else{
+						sb.append(" " +words[i]);
 					}
 				}
 				else{
-					finalList.add(q.get(i));
+					sb.append(" " +words[i]);
 				}
 			}
-			StringBuilder listString = new StringBuilder();
-			for(String s : finalList){
-				listString.append(s+" ");
-			}
-			return listString.toString();
 		}
-		else{
-			return searchQuery;
-		}
+		return sb.toString();
+//		String searchQuery = srchQuery.replaceAll("[$&+,:;=?@#|'<>.-^*()%!]", "");
+//		List<String> q = new ArrayList<String>();
+//		List<String> finalList = new ArrayList<String>();
+//		q = Arrays.asList(searchQuery.split(" "));
+//		//If first word is AND, OR or NOT, change it to lower case
+//		if(q.size() != 0){
+//			if(q.get(0).equals("AND") || q.get(0).equals("OR") || q.get(0).equals("NOT")){
+//				finalList.add(q.get(0).toLowerCase());
+//			}
+//			else{
+//				finalList.add(q.get(0));
+//			}
+//		}
+//		if(q.size() > 1){
+//			for(int i = 1; i < q.size(); i++){
+//				if(q.get(i).equals("AND") || q.get(i).equals("OR") || q.get(i).equals("NOT")){
+//					if(!q.get(i+1).equals("AND") && !q.get(i+1).equals("OR") && !q.get(i+1).equals("NOT")){
+//						finalList.add(q.get(i));
+//					}
+//				}
+//				else{
+//					finalList.add(q.get(i));
+//				}
+//			}
+//			StringBuilder listString = new StringBuilder();
+//			for(String s : finalList){
+//				listString.append(s+" ");
+//			}
+//			return listString.toString();
+//		}
+//		else{
+//			return searchQuery;
+//		}
 	}
 	
 }
