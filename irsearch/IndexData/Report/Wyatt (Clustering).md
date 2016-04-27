@@ -38,7 +38,7 @@ Adding this as an additional file to prevent overwriting someone else's changes 
 
     g. The improved cluster titles were generated in part by the hierarchical clusters and they were provided to the front end.  Without the addition of the improved stop words list, each title would be something like "Target Free Shipping".
 
-    h. 500 randomly generated query were used along with 25 manual queries.
+    h. 500 randomly generated query were used along with 25 manual queries.  Test queries were generated using cluster.generateClusterQueries() and the results fed into our test suite.  Examining those results determined which attributes were left out of subsequent clustering runs.
 
     i. See 5.e.  The results obtained during testing were used to prune the data and improve the overall clustering during the next iteration.
 
