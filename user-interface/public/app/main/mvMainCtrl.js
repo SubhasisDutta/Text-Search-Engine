@@ -11,10 +11,12 @@ angular.module('app').controller('mvMainCtrl', function($scope,$resource) {
     $scope.searchQuery ="";
     $scope.queryAvailableFlag=false;
     $scope.resultAvailable = false;
-    $scope.tabIndex = 3;
+    $scope.tabIndex = 0;
 
     $scope.getSearchResults = function(searchQuery){
         console.log(searchQuery);
+        $scope.queryAvailableFlag=false;
+        $scope.resultAvailable = false;
         if(searchQuery.trim() === ""){
             $scope.queryAvailableFlag = false;
             $scope.resultAvailable = false;
@@ -23,7 +25,7 @@ angular.module('app').controller('mvMainCtrl', function($scope,$resource) {
         }
         //Go get the reusults if any one gives result make it available
         if($scope.queryAvailableFlag){
-            var googleSearchResource = $resource("/api/googlesearch/:query");
+            /*var googleSearchResource = $resource("/api/googlesearch/:query");
             $scope.googleSearchResults = googleSearchResource.get({query:searchQuery},function(){
                 $scope.resultAvailable = true;
                 //console.log($scope.googleSearchResults);
@@ -35,7 +37,7 @@ angular.module('app').controller('mvMainCtrl', function($scope,$resource) {
                 $scope.resultAvailable = true;
                 console.log($scope.bingSearchResults.d.results[0]);
                 //console.log($scope.googleSearchResults.items[0]);
-            });
+            });*/
 
             var searchQueryResource = $resource("/api/search/:query");
             $scope.searchQuerySearchResults = searchQueryResource.get({query:searchQuery},function(){
